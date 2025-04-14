@@ -1,0 +1,84 @@
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  overflow-y: auto;  /* Permite rolagem vertical */
+  font-family: "Lato", sans-serif;
+}
+
+.register_form {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-self: center;
+  align-items: center;
+  justify-content: center;
+  gap: 1vh;
+  margin-top: 9vh;
+  height: 40vh;
+  width: 50vh;
+  border-radius: 4vh;
+  background-color: rgb(62, 104, 134);
+  color:whitesmoke;
+  box-shadow: 0 2vh 6vh rgba(0, 0, 0, 0.5)
+}
+
+.register_form_title {
+  margin-top: 0vh;
+  margin-bottom: 1vh;
+  font-size: 4vh;
+}
+
+.register_form input {
+  width: 100%;
+  padding: 0.2vh 2vh;
+  font-size: 2vh;
+  margin-bottom: 1.5vh;
+  box-sizing: border-box;
+  border-radius: 1vh;
+  border: 0.5vh solid #ccc;
+  outline: none;
+  transition: border 0.3s ease;
+}
+
+
+input {
+  width: 100%;  /* Faz os inputs ocuparem toda a largura disponível */
+  padding: 1vh;
+  font-size: 2vh;
+  margin-bottom: 2vh;
+  border: 1px solid #ccc;
+  border-radius: 2vh;
+}
+
+.btn_register {
+  margin-top: 3vh;
+  width: 100%;
+  padding: 1vh 2vh;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 1vh;
+  font-size: 2vh;
+  cursor: pointer;
+}
+
+.btn_register:hover {
+  background-color: #45a049;
+}
+
+.btn_back {
+  width: 100%;
+  padding: 1vh 2vh;
+  margin-top: 1vh;
+  background-color: whitesmoke;
+  color: black;
+  border: none;
+  border-radius: 1vh;
+  font-size: 2vh;
+  cursor: pointer;
+}
+
+.btn_back:hover {
+  background-color: #d6ddd6;
+}

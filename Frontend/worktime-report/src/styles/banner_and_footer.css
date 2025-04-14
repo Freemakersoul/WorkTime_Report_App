@@ -1,0 +1,48 @@
+.banner {
+  position: relative;
+  display: flex;
+  height:100vh;
+  width: 100%;
+  background-color: #2e2e2e;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.app_content {
+  position: absolute; /* Faz o conteúdo flutuar sobre o Banner */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 1; /* Garante que o conteúdo esteja sobre o Banner */
+  color: white; /* Garante que o texto do conteúdo seja visível sobre o Banner */
+}
+
+.footer {
+  position: relative;
+  margin-top: auto;
+  color:whitesmoke;
+  font-family: "Lato", sans-serif;
+  font-size: 2vh;
+  text-align: center;
+  padding: 2vh;
+}
+
+
+@media (max-width: 768px) {
+  .footer {
+    font-size: 2vw; 
+    padding: 4vw; 
+  }
+}
+
+@media (max-width: 480px) {
+  .footer {
+    font-size: 2vw; 
+    padding: 5vw; 
+  }
+}

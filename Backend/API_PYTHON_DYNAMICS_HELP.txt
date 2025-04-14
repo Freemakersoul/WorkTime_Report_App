@@ -1,0 +1,81 @@
+
+GET
+@app.get("/get-accounts")
+async def get_accounts():
+    token = get_bearer_token()
+    if not token:
+        return {"error": "Não foi possível obter o token de acesso"}
+    
+    headers = {
+        "Authorization": f"Bearer {token}",
+        "Content-Type": "application/json"
+    }
+
+    response = get(f"{DYNAMICS_URL}/api/data/v9.0/accounts", headers=headers)
+    
+    if response.status_code == 200:
+        return response.json()
+    else:
+        return {"error": f"Erro ao acessar a API. Status: {response.status_code}"}
+
+
+POST
+@app.post("/create-account")
+async def create_account(data: dict):
+    token = get_bearer_token()
+    if not token:
+        return {"error": "Token inválido"}
+
+    headers = {
+        "Authorization": f"Bearer {token}",
+        "Content-Type": "application/json"
+    }
+
+    response = post(f"{DYNAMICS_URL}/api/data/v9.0/accounts", headers=headers, json=data)
+    
+    if response.status_code in [200, 204]:
+        return {"message": "Conta criada com sucesso"}
+    else:
+        return {"error": f"Erro ao criar conta. Status: {response.status_code}", "details": response.text}
+
+
+PATCH
+@app.patch("/update-account/{account_id}")
+async def update_account(account_id: str, data: dict):
+    token = get_bearer_token()
+    if not token:
+        return {"error": "Token inválido"}
+
+    headers = {
+        "Authorization": f"Bearer {token}",
+        "Content-Type": "application/json",
+        "If-Match": "*"
+    }
+
+    response = patch(f"{DYNAMICS_URL}/api/data/v9.0/accounts({account_id})", headers=headers, json=data)
+    
+    if response.status_code in [204]:
+        return {"message": "Conta atualizada com sucesso"}
+    else:
+        return {"error": f"Erro ao atualizar conta. Status: {response.status_code}", "details": response.text}
+
+
+DELETE
+@app.delete("/delete-account/{account_id}")
+async def delete_account(account_id: str):
+    token = get_bearer_token()
+    if not token:
+        return {"error": "Token inválido"}
+
+    headers = {
+        "Authorization": f"Bearer {token}",
+        "Content-Type": "application/json"
+    }
+
+    response = delete(f"{DYNAMICS_URL}/api/data/v9.0/accounts({account_id})", headers=headers)
+    
+    if response.status_code in [204]:
+        return {"message": "Conta deletada com sucesso"}
+    else:
+        return {"error": f"Erro ao deletar conta. Status: {response.status_code}", "details": response.text}
+

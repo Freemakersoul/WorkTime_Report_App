@@ -1,0 +1,8 @@
+# Ignorar a pasta do ambiente virtual
+venv/
+
+# Ignorar arquivos de configuração do IDE (VSCode)
+.vscode/
+
+# Ignorar o arquivo .env para nao partilhar conteudo sensivel
+.env
