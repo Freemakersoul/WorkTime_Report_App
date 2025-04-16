@@ -1,0 +1,23 @@
+.profile_content {
+  display: flex;
+  border-radius: 3vh;
+}
+
+.profile_right_content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.profile_photo {
+  margin-top: 5vh;
+  margin-left: 5vh;
+  height: 20vh;
+}
+
+
+.profile_name{
+  color: aqua;
+  font-size: 4vh;
+  margin-left: 5.5vh;
+}

@@ -1,11 +1,19 @@
 import React, {useEffect, useState} from 'react';
 import logo from '../assets/imgs/logotype.png';
 import { useNavigate } from 'react-router-dom';
-import findMoreIcon from '../assets/imgs/findmore.png';
+import {handleLogout} from '../services/Logout';
 
-function Header() {
+function Header({ currentPage,  onNavigate  }) {
   const [userName, setUserName] = useState('');
   const navigate = useNavigate();
+  
+  const goToProfile = () => {
+    if (onNavigate) {
+      onNavigate("Profile"); // Atualiza o estado no MainDashboard
+    } else {
+      navigate('/dashboard/profile'); // fallback se não vier a prop
+    }
+  };
 
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem("user"));
@@ -15,20 +23,19 @@ function Header() {
     }
   }, []);
 
-  const handleLogout = () => {
-    const confirmLogout = window.confirm("Are you sure you want to log out?");
-    if (confirmLogout) {
-      localStorage.removeItem('user');
-      navigate('/');
-    }
-  };
-
   return (
     <div className="header">
-      <img src={findMoreIcon} alt="Findmore Logo" className="findmore_logo" />
-      <img src={logo} alt="WorkTime Report Icon" className="app_icon" />
-      <div className="user_name">Welcome to the WorkTime Report, {userName}!</div>
-      <button onClick={handleLogout} className="logout_button">Logout</button>
+      <img src={logo} alt="WorkTime Report Icon" className="app_icon_header" />
+      <div className="greetings">
+        Welcome to WorkTime Report,<span style={{color:'aqua'}}> {userName}</span>!
+      </div>
+      <h2 className="current_page">{currentPage}</h2>
+      <div className="header_icons">
+      <span onClick={goToProfile} className="icon" title={userName}>🧑‍💻</span>
+        <span className="icon">🔔</span>
+        <span className="icon">⚙️</span>
+      </div>
+      <button onClick={() => handleLogout(navigate)} className="logout_button">Logout</button>
     </div>
   );
 }

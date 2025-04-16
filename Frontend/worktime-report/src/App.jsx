@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import logo from './assets/imgs/logotype.png';
-import BannerAndFooter from './components/banner_and_footer';
+import BannerAndFooter from './components/BannerAndFooter';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
@@ -100,7 +100,7 @@ const App = () => {
                     placeholder="Email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    autocomplete = "email"
+                    autoComplete = "email"
                     required
                   />
                 </label>
@@ -110,7 +110,7 @@ const App = () => {
                     placeholder="Password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    autocomplete = "password"
+                    autoComplete = "password"
                     required
                   />
                 </label>
@@ -134,7 +134,7 @@ const App = () => {
                       id="name"
                       placeholder="First and last name"
                       onChange={(e) => setName(e.target.value)}
-                      autocomplete = "name"
+                      autoComplete = "name"
                       required
                     />
                   </label>
@@ -145,7 +145,7 @@ const App = () => {
                       id="email"
                       placeholder="Email"
                       onChange={(e) => setEmail(e.target.value)}
-                      autocomplete = "email"
+                      autoComplete = "email"
                       required
                     />
                   </label>
@@ -157,7 +157,7 @@ const App = () => {
                       id="password"
                       placeholder="Password"
                       onChange={(e) => setPassword(e.target.value)}
-                      autocomplete = "password"
+                      autoComplete = "password"
                       required
                     />
                   </label>
@@ -169,7 +169,7 @@ const App = () => {
                       placeholder="Confirm password"
                       value={confirmPassword}
                       onChange={(e) => setConfirmPassword(e.target.value)}
-                      autocomplete = "password"
+                      autoComplete = "password"
                       required
                     />
                   </label>

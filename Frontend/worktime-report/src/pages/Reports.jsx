@@ -1,6 +1,6 @@
 import React from 'react';
 // Reports.jsx
-const Dashboard = () => {
+const Reports = () => {
   return (
     <div>
       <h2>Relatórios</h2>
@@ -9,4 +9,4 @@ const Dashboard = () => {
   );
 };
 
-export default Dashboard;
+export default Reports;
