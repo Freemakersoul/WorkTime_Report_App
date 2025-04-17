@@ -6,6 +6,8 @@ import findMoreIcon from '../assets/imgs/findmore.png';
 import {handleLogout} from '../services/Logout';
 import { Outlet } from 'react-router-dom'; 
 
+/* FUNCTIONAL COMPONENT THAT CONTAINS ALL CONTENT AN FEATURES 
+FROM MAIN DASHBOARD (MAIN APP PAGE)*/
 const MainDashboard = () => {
 
   const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -14,6 +16,7 @@ const MainDashboard = () => {
   const [currentPage, setCurrentPage] = useState("Dashboard");
   const [selectedPage, setSelectedPage] = useState("Dashboard");
 
+  // ARROW FUNCTION TO NAVIGATE BETWEEN PAGES
   const handlePageClick = (page) => {
     setSelectedPage(page);
     setCurrentPage(page);

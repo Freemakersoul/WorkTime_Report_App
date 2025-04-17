@@ -4,7 +4,8 @@ import BannerAndFooter from './components/BannerAndFooter';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
-
+/* FUNCTIONAL COMPONENT THAT CONTAINS THE INDEX CONTENT AND
+ HANDLES THE REGISTER AND THE LOGIN TO THE APP*/
 const App = () => {
   const [email, setEmail] = useState('');
   const [name, setName] = useState('');
@@ -16,10 +17,11 @@ const App = () => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
+  // USER REGISTER
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (password !== confirmPassword) {
-      alert("As senhas não coincidem!");
+      alert("Passwords do not match!");
       return;
     }
     
@@ -30,8 +32,8 @@ const App = () => {
       usertype: 313330000
     };
 
-    setLoading(true); // Começa a mostrar o carregamento
-    setErrorMessage(''); // Limpa mensagem de erro anterior
+    setLoading(true); // Show loading
+    setErrorMessage(''); // cleans the previous error message
 
     try {
       const response = await axios.post("http://localhost:8000/create-user", userData,{
@@ -42,18 +44,19 @@ const App = () => {
       console.log("ID criado:", response.data.cr6ca_employeeid);
       alert("Usuário registrado com sucesso!");
       localStorage.setItem('registerMessage', 'Register in evaluation');
-      navigate('/');  // Navega para a página inicial após sucesso
+      navigate('/');  // Navigates to index page after success
     } catch (error) {
       console.error('Erro ao registrar usuário:', error);
       setErrorMessage('Erro ao registrar usuário. Tente novamente.');
     } finally {
-      setLoading(false); // Finaliza o carregamento
+      setLoading(false); // Finishes Loading
     }
   };
 
+  // LOGIN
   const handleLogin = async (e) => {
     e.preventDefault();
-    //laura@findmore.eu
+    
     try {
       const response = await axios.post("http://localhost:8000/login", { email, password });
   
@@ -72,7 +75,7 @@ const App = () => {
     const message = localStorage.getItem('registerMessage');
     if (message) {
       setRegisterMessage(message);
-      localStorage.removeItem('registerMessage'); // Limpar a mensagem após exibição
+      localStorage.removeItem('registerMessage'); // Cleans message after show up
     }
   }, []);
 
@@ -176,7 +179,7 @@ const App = () => {
 
                   {errorMessage && <p style={{ color: 'red' }}>{errorMessage}</p>}
                   {loading ? (
-                    <button className="btn_register" type="submit" disabled>Carregando...</button>
+                    <button className="btn_register" type="submit" disabled>Loading...</button>
                   ) : (
                     <button className="btn_register" type="submit">Register</button>
                   )}

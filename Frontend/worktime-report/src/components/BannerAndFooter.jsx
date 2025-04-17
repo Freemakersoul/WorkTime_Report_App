@@ -1,5 +1,6 @@
 import React from 'react';
 
+// FUNCTION THAT CONTAINS ALL BANNER AND FOOTER CONTENT
 function BannerAndFooter() {
   return (
     <div className="banner">

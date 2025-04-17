@@ -1,23 +1,157 @@
 .profile_content {
   display: flex;
-  border-radius: 3vh;
+  flex-direction: row;
+  width: 100%;
 }
 
-.profile_right_content {
+.profile_left_section {
+  display: flex;
+  flex-direction: column;
+  width: 33.33%;
+  border-right: 1vh solid rgba(255, 255, 255, 0.2);
+}
+
+.profile_middle_section {
+  display: flex;
+  flex-direction: column;
+  width: 33.33%;
+  border-right: 1vh solid rgba(255, 255, 255, 0.2);
+}
+
+.profile_right_section {
+  width: 33.33%;
+  display: flex;
+  flex-direction: column;
+}
+
+.profile_left_content {
   display: flex;
   flex-direction: column;
   align-items: center;
 }
 
 .profile_photo {
-  margin-top: 5vh;
-  margin-left: 5vh;
+  align-self:flex-start;
+  margin-top: 6vh;
+  margin-left: 7vh;
   height: 20vh;
+  border-radius: 50%;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
+.profile_info_view {
+  display: flex;
+  flex-direction: column;
+  margin: 2vh 5vh;
+}
 
-.profile_name{
-  color: aqua;
-  font-size: 4vh;
-  margin-left: 5.5vh;
+.profile_info_view p{
+ font-size: 2.8vh;
+}
+
+.photo_profile_legend {
+  background-color: #07a4a4;
+  color: whitesmoke;
+  padding: 1vh 2vh;
+  border-radius: 1vh;
+  font-weight: bold;
+  margin-top: 0.1vh;
+  display: inline-block;
+  width: fit-content;
+  margin-left: 2.5vh;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.profile_info_title{
+  margin-top: 5vh;
+}
+
+.edit_button {
+  border-radius: 0.5vh;
+  border: none;
+  font-size: 2vh;
+  background-color: rgb(48, 115, 48);
+  color: whitesmoke;
+  cursor: pointer;
+}
+
+.profile_edit_title {
+  margin-top: 5vh;
+  margin-bottom: 1vh;
+}
+
+.profile_edit_form {
+  display: flex;
+  flex-direction: column;
+  margin: 2vh 5vh;
+  margin-bottom: 0vh;
+  overflow: hidden;
+}
+
+.profile_edit_form label {
+  font-size: 1.8vh;
+}
+
+.profile_input {
+  height: 0.1%;
+  width: 45%;
+  margin-top: 0.5vh
+}
+
+.custom_file_button {
+  background-color: #07a4a4;
+  color: whitesmoke;
+  padding: 1vh 2vh;
+  border-radius: 1vh;
+  cursor: pointer;
+  font-weight: bold;
+  margin-top: 0.1vh;
+  display: inline-block;
+  width: fit-content;
+  margin-left: 2.5vh;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.custom_file_button:hover {
+  background-color: #07a4a4;
+}
+
+.profile_input_photo {
+  display:none;
+}
+
+.role_options {
+  width: 25%;
+  margin-top: 1vh
+}
+
+.edit_buttons {
+  display: flex;
+  gap: 2vh;
+}
+
+.save_button {
+  margin-top: 2vh;
+  border-radius: 0.5vh;
+  border: none;
+  background-color: rgb(48, 115, 48);
+  color: whitesmoke;
+  cursor: pointer;
+}
+
+.save_button:hover {
+  background-color: rgb(40, 94, 40);
+}
+
+.cancel_button {
+  margin-top: 2vh;
+  border-radius: 0.5vh;
+  border: none;
+  background-color: rgb(171, 51, 51);
+  color: whitesmoke;
+  cursor: pointer;
+}
+
+.cancel_button:hover {
+  background-color: rgb(134, 43, 43);
 }

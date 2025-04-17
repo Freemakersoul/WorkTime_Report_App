@@ -3,18 +3,21 @@ import logo from '../assets/imgs/logotype.png';
 import { useNavigate } from 'react-router-dom';
 import {handleLogout} from '../services/Logout';
 
+// FUNCTION THET CONTAINS ALL HEADER INFO AND FEATURES 
 function Header({ currentPage,  onNavigate  }) {
   const [userName, setUserName] = useState('');
   const navigate = useNavigate();
   
+  // NAVIGATE TO PROFILE PAGE
   const goToProfile = () => {
     if (onNavigate) {
-      onNavigate("Profile"); // Atualiza o estado no MainDashboard
+      onNavigate("Profile"); 
     } else {
-      navigate('/dashboard/profile'); // fallback se não vier a prop
+      navigate('/dashboard/profile'); 
     }
   };
 
+  // GET USER NAME FROM LOCALSTORAGE
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem("user"));
     
