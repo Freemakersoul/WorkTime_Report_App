@@ -4,36 +4,17 @@
   width: 100%;
 }
 
+/**/
 .profile_left_section {
   display: flex;
   flex-direction: column;
-  width: 33.33%;
-  border-right: 1vh solid rgba(255, 255, 255, 0.2);
-}
-
-.profile_middle_section {
-  display: flex;
-  flex-direction: column;
-  width: 33.33%;
-  border-right: 1vh solid rgba(255, 255, 255, 0.2);
-}
-
-.profile_right_section {
-  width: 33.33%;
-  display: flex;
-  flex-direction: column;
-}
-
-.profile_left_content {
-  display: flex;
-  flex-direction: column;
   align-items: center;
+  width: 33.33%;
+  border-right: 1vh solid rgba(255, 255, 255, 0.2);
 }
 
 .profile_photo {
-  align-self:flex-start;
   margin-top: 6vh;
-  margin-left: 7vh;
   height: 20vh;
   border-radius: 50%;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
@@ -46,20 +27,24 @@
 }
 
 .profile_info_view p{
- font-size: 2.8vh;
+ font-size: 2.5vh;
 }
 
+.profile_info_view .photo_profile_legend  {
+  display: flex;
+  align-items: center;
+}
 .photo_profile_legend {
+  display: flex;
+  justify-content: center;
   background-color: #07a4a4;
   color: whitesmoke;
   padding: 1vh 2vh;
   border-radius: 1vh;
   font-weight: bold;
-  margin-top: 0.1vh;
-  display: inline-block;
-  width: fit-content;
-  margin-left: 2.5vh;
+  margin-top: 1.1vh;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  text-align: center;
 }
 
 .profile_info_title{
@@ -70,7 +55,8 @@
   border-radius: 0.5vh;
   border: none;
   font-size: 2vh;
-  background-color: rgb(48, 115, 48);
+  font-weight: bold;
+  background-color: rgb(3, 154, 3);
   color: whitesmoke;
   cursor: pointer;
 }
@@ -92,28 +78,26 @@
   font-size: 1.8vh;
 }
 
-.profile_input {
+.edit_profile_input {
   height: 0.1%;
-  width: 45%;
+  width: 90%;
   margin-top: 0.5vh
 }
 
 .custom_file_button {
-  background-color: #07a4a4;
+  background-color: rgb(3, 154, 3);
   color: whitesmoke;
   padding: 1vh 2vh;
   border-radius: 1vh;
   cursor: pointer;
   font-weight: bold;
-  margin-top: 0.1vh;
-  display: inline-block;
-  width: fit-content;
-  margin-left: 2.5vh;
+  margin-top: 1.3vh;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  text-align: center;
 }
 
 .custom_file_button:hover {
-  background-color: #07a4a4;
+  background-color: green;
 }
 
 .profile_input_photo {
@@ -121,7 +105,7 @@
 }
 
 .role_options {
-  width: 25%;
+  width: 45%;
   margin-top: 1vh
 }
 
@@ -134,24 +118,116 @@
   margin-top: 2vh;
   border-radius: 0.5vh;
   border: none;
-  background-color: rgb(48, 115, 48);
+  background-color: rgb(3, 154, 3);
   color: whitesmoke;
   cursor: pointer;
+  font-weight: bold;
 }
 
 .save_button:hover {
-  background-color: rgb(40, 94, 40);
+  background-color: green;
 }
 
 .cancel_button {
   margin-top: 2vh;
+  padding: 0.5vh 0.5vh;
   border-radius: 0.5vh;
   border: none;
   background-color: rgb(171, 51, 51);
   color: whitesmoke;
   cursor: pointer;
+  font-weight: bold;
 }
 
 .cancel_button:hover {
   background-color: rgb(134, 43, 43);
+}
+
+/**/
+.profile_middle_section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 33.33%;
+  border-right: 1vh solid rgba(255, 255, 255, 0.2);
+}
+
+.clock_photo {
+  margin-top: 6vh;
+  height: 20vh;
+  border-radius: 50%;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.hours_worked_main_info {
+  display: flex;
+  flex-direction: column;
+  align-items:center;
+  background-color: green;
+  border-radius: 2vh;
+  padding: 1.5vh 2vh; 
+  margin-bottom: 3vh;
+  margin-top: 3vh;
+}
+
+.hours_worked_main_info p {
+  margin-bottom: 0vh;
+}
+
+.hours_worked_main_title {
+  margin:0vh;
+}
+
+
+.hours_worked_title {
+  margin: 0vh;
+}
+
+.hours_worked_info {
+  margin-top: 1vh;
+  color: aqua;
+}
+
+/**/
+.profile_right_section {
+  width: 33.33%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.vacations_photo {
+  margin-top: 5vh;
+  height: 10.5vw;
+  width: 10.5vw;
+  border: none;
+  box-shadow: 1;
+}
+
+.vacations_info_content {
+  display: flex;
+  flex-direction: column;
+  align-items:center;
+  margin-top: 2vh;
+}
+
+.vacations_title {
+  margin-top: 1vh;
+  margin-bottom: 0vh;
+}
+
+.vacations_info {
+  margin-top: 1vh;
+  color: aqua;
+}
+
+.schedule_vacations_button {
+  border:none;
+  border-radius: 1vh;
+  padding: 1vh 1vh;
+  font-size: 2vh;
+  font-weight: bold;
+  background-color:rgb(3, 154, 3);
+  color: whitesmoke;
+  margin-top: 2vh;
 }

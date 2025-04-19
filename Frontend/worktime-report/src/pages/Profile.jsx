@@ -1,5 +1,7 @@
 import React, {useEffect, useState} from 'react';
 import defaultProfilePhoto from '../assets/imgs/default_profile_photo.png';
+import clock from '../assets/imgs/clock.png';
+import vacations from '../assets/imgs/vacations.png';
 import axios from 'axios';
 
 // FUNCTIONAL COMPONENT THAT CONTAINS ALL PROFILE CONTENT AND FEATURES
@@ -19,7 +21,6 @@ const Profile = () => {
     if (user) {
       setUserName(user.name);
       setUserEmail(user.email);
-      setUserPassword(user.password);
 
       // REQUEST TO GET CURRENT PHOTO PROFILE
       const fetchUserData = async () => {
@@ -73,7 +74,9 @@ const Profile = () => {
     const formData = new FormData();
     formData.append("email", userEmail);
     formData.append("name", userName);
-    formData.append("password", userPassword);
+    if (userPassword) {
+      formData.append("password", userPassword);
+    }
     if (selectedPhoto) {
       formData.append("file", selectedPhoto);
     }
@@ -100,7 +103,7 @@ const Profile = () => {
         ...user,
         name: userName,
         email: userEmail,
-        password: userPassword, 
+        ...(userPassword && { password: userPassword }) 
       };
 
       // SAVE USER DATA ON LOCALSTORAGE
@@ -125,34 +128,28 @@ const Profile = () => {
 
   return (
     <div className="profile_content">
-        <div className="profile_left_section">
-        <div className="profile_left_content">
-          <img
-            src={profilePhotoUrl || defaultProfilePhoto}
-            alt="profile photo"
-            className="profile_photo"
-          />
-        </div>
+      <div className="profile_left_section">
+          <img src={profilePhotoUrl || defaultProfilePhoto} alt="profile photo" className="profile_photo"/>
 
         {!isEditing ? (
           <div className="profile_info_view">
             <div>
-              <div className="photo_profile_legend">Profile photo</div>
-              <h1 className="profile_info_title">Personal Info:</h1>
+              <div className="photo_profile_legend">Your profile photo</div>
+              <h2 className="profile_info_title">Personal Info:</h2>
               <p><strong>Name:</strong> <span style={{ color: 'aqua' }}>{userName}</span></p>
               <p><strong>Email:</strong> <span style={{ color: 'aqua' }}>{userEmail}</span></p>
               <p><strong>Role:</strong> {' '}
                 <span style={{ color: 'aqua' }}>
                   {roles.find(r => r.value == selectedRole)?.label || 'N/A'}
                 </span></p>
-              <button className="edit_button" onClick={() => setIsEditing(true)}>Edit Profile 🖉</button>
+              <button className="edit_button" onClick={() => setIsEditing(true)}>🖉 Edit Profile</button>
             </div>
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="profile_edit_form">
 
               <label htmlFor="fileUpload" className="custom_file_button">
-                Change photo 🖉
+              🖉 Change profile photo
               </label>
               <input
                 id="fileUpload"
@@ -162,11 +159,11 @@ const Profile = () => {
                 accept="image/*" 
               />
 
-            <h1 className="profile_edit_title">Personal Info Edit:</h1>
+            <h2 className="profile_edit_title">Personal Info Edit:</h2>
 
               <label>Name:</label>
               <input
-                className="profile_input"
+                className="edit_profile_input"
                 type="text"
                 value={userName}
                 onChange={(e) => setUserName(e.target.value)}
@@ -174,7 +171,7 @@ const Profile = () => {
             
               <label>Email:</label>
               <input
-                className="profile_input"
+                className="edit_profile_input"
                 type="email"
                 value={userEmail}
                 onChange={(e) => setUserEmail(e.target.value)}
@@ -182,7 +179,7 @@ const Profile = () => {
             
               <label>Password:</label>
               <input
-                className="profile_input"
+                className="edit_profile_input"
                 type="password" 
                 value={userPassword}
                 onChange={(e) => setUserPassword(e.target.value)}
@@ -212,10 +209,31 @@ const Profile = () => {
         )}
       </div>
       <div className="profile_middle_section">
-        <div className="profile_extra_box">fdhfdh</div>
+        <img src={clock} alt="clock photo" className="clock_photo"/>
+        <div className="hours_worked_main_info">
+          <h2 className="hours_worked_main_title">Total Hours Worked:</h2>
+          <p className="hours_worked_info"><strong>200 Hours</strong></p>
+        </div>
+        <h3 className="hours_worked_title">Hours Worked Today:</h3>
+        <p className="hours_worked_info" style={{ color: 'lightgreen' }}>8 Hours</p>
+        <h3 className="hours_worked_title">Hours Worked This Week:</h3>
+        <p className="hours_worked_info">40 Hours</p>
+        <h3 className="hours_worked_title">Hours Worked This Month:</h3>
+        <p className="hours_worked_info">176 Hours</p>
+        <h3 className="hours_worked_title">Hours Worked This Year:</h3>
+        <p className="hours_worked_info">200 Hours</p>
       </div>
       <div className="profile_right_section">
-        <div className="profile_extra_box">hfdhdh</div>
+        <img src={vacations} alt="profile photo" className="vacations_photo"/>
+        <div className="vacations_info_content">
+          <h2 className="vacations_title">Annual leave used:</h2>
+          <p className="vacations_info">12 Days</p>
+          <h2 className="vacations_title">Annual leave outstanding:</h2>
+          <p className="vacations_info">10 Days</p>
+          <h2 className="vacations_title">Carried over days:</h2>
+          <p className="vacations_info">6 Days</p>
+        </div>
+        <button className="schedule_vacations_button">🗓️ Schedule annual leave</button>
       </div>
     </div>
   );

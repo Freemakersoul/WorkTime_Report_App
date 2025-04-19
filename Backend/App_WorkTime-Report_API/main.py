@@ -175,6 +175,7 @@ async def get_user(cr6ca_employeeid: str):
                 "id": user.get("cr6ca_employeeid"),
                 "name": user.get("cr6ca_name"),
                 "email": user.get("cr6ca_email"),
+                "password":user.get("cr6ca_password"),
                 "usertype": user.get("cr6ca_usertype"),
                 "photo_url": f"data:image/png;base64,{photo_base64}" if photo_base64 else None
             }
