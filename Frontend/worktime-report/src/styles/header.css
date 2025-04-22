@@ -12,13 +12,12 @@
   gap: clamp(1vh, 3vh, 4vh);
   z-index: 1;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-  overflow: hidden; /* evita que quebre */
 }
 
 .app_icon_header {
   height: clamp(3vh, 6vh, 7vh);
   margin-left: 0.8vw;
-  flex-shrink: 0; /* evita que suma */
+  flex-shrink: 0;
 }
 
 .greetings {
@@ -62,6 +61,39 @@
 }
 
 .icon:hover {
+  transform: scale(1.2);
+} 
+
+.user_photo {
+  height: 5vh;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.notification_dropdown {
+  position: absolute;
+  top: 120%; /* ou ajuste fino tipo: top: 30px; */
+  right: 40px; /* Ajuste isso se necessário, depende da posição do sino */
+  background-color: white;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+  width: 250px;
+  max-height: 300px;
+  overflow-y: auto;
+  z-index: 100;
+  padding: 10px;
+  animation: fadeIn 0.2s ease-in-out;
+}
+
+.notification_text {
+  margin: 0;
+  padding: 5px 0;
+  font-size: 14px;
+  color: #333;
+}
+
+.user_photo:hover {
   transform: scale(1.2);
 }
 

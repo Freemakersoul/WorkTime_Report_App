@@ -28,12 +28,17 @@ const Profile = () => {
           const response = await axios.get(`http://localhost:8000/get-user/${user.id}`);
           const userData = response.data;
 
+          // Armazenar a senha apenas internamente (não exibir no frontend)
+          if (userData.password) {
+            setUserPassword(userData.password); // Aqui, a senha será salva no estado
+          }
+
           // CHECK IF USER-DATA HAS PHOTO_URL AND UPDATE THE STATE 
           if (userData.photo_url) {
             setProfilePhotoUrl(userData.photo_url);
           }
         } catch (error) {
-          console.error("Erro ao buscar foto atualizada:", error);
+          console.error("Error retreiving updated photo:", error);
         }
       };
 
@@ -52,7 +57,7 @@ const Profile = () => {
         const response = await axios.get('http://localhost:8000/get-role-values'); // BACKEND URL
         setRoles(response.data.roles); 
       } catch (error) {
-        console.error('Erro ao buscar opções de cargos:', error);
+        console.error('Error retrieving role options.', error);
       }
     };
     fetchRoles();
@@ -66,7 +71,7 @@ const Profile = () => {
     const userId = user.id;
 
     if (!userId) {
-      alert('Usuário não encontrado.');
+      alert('User not found.');
       return;
     }
 
@@ -90,7 +95,7 @@ const Profile = () => {
       });
 
       console.log('Updated user data:', response.data);
-      alert('Profile updated sucessfully!');
+      alert('Profile sucessfully updated!');
       setIsEditing(false); // INFO MODE
 
       // UDATE USER PHOTO
@@ -110,8 +115,8 @@ const Profile = () => {
       localStorage.setItem("user", JSON.stringify(updatedUser))
 
     } catch (error) {
-      console.error('Erro ao atualizar o perfil:', error);
-      alert('Erro ao atualizar o perfil');
+      console.error('Error updating profile:', error);
+      alert('Error while updating profile');
     }
   };
 
@@ -126,116 +131,154 @@ const Profile = () => {
     }
   };
 
+  useEffect(() => {
+    const content = document.querySelector(".scale_wrapper_content");
+    const wrapper = document.getElementById("scale_wrapper");
+  
+    const baseWidth = 1024;
+    const baseHeight = 600;
+  
+    const scaleToFit = () => {
+      const scaleY = content.clientHeight / baseHeight;
+      const scaleX = content.clientWidth / baseWidth;
+      const scale = Math.min(scaleX, scaleY);
+  
+      wrapper.style.transform = `scale(${scale})`;
+    };
+  
+    // Inicializa o scale
+    scaleToFit();
+  
+    // Observa mudanças no tamanho do content
+    const resizeObserver = new ResizeObserver(() => {
+      scaleToFit();
+    });
+  
+    if (content) resizeObserver.observe(content);
+  
+    // Fallback pro resize da janela
+    window.addEventListener("resize", scaleToFit);
+  
+    return () => {
+      resizeObserver.disconnect();
+      window.removeEventListener("resize", scaleToFit);
+    };
+  }, []);
+
   return (
-    <div className="profile_content">
-      <div className="profile_left_section">
-          <img src={profilePhotoUrl || defaultProfilePhoto} alt="profile photo" className="profile_photo"/>
+    <div className="scale_wrapper_content">
+      <div id="scale_wrapper">
+        <div className="profile_content">
+          <div className="profile_left_section">
+              <img src={profilePhotoUrl || defaultProfilePhoto} alt="profile photo" className="profile_photo"/>
 
-        {!isEditing ? (
-          <div className="profile_info_view">
-            <div>
-              <div className="photo_profile_legend">Your profile photo</div>
-              <h2 className="profile_info_title">Personal Info:</h2>
-              <p><strong>Name:</strong> <span style={{ color: 'aqua' }}>{userName}</span></p>
-              <p><strong>Email:</strong> <span style={{ color: 'aqua' }}>{userEmail}</span></p>
-              <p><strong>Role:</strong> {' '}
-                <span style={{ color: 'aqua' }}>
-                  {roles.find(r => r.value == selectedRole)?.label || 'N/A'}
-                </span></p>
-              <button className="edit_button" onClick={() => setIsEditing(true)}>🖉 Edit Profile</button>
-            </div>
-          </div>
-        ) : (
-          <form onSubmit={handleSubmit} className="profile_edit_form">
+            {!isEditing ? (
+              <div className="profile_info_view">
+                <div>
+                  <div className="photo_profile_legend">Your profile photo</div>
+                  <h2 className="profile_info_title">Personal Info:</h2>
+                  <p><strong>Name:</strong> <span style={{ color: 'aqua' }}>{userName}</span></p>
+                  <p><strong>Email:</strong> <span style={{ color: 'aqua' }}>{userEmail}</span></p>
+                  <p><strong>Role:</strong> {' '}
+                    <span style={{ color: 'aqua' }}>
+                      {roles.find(r => r.value == selectedRole)?.label || 'N/A'}
+                    </span></p>
+                  <button className="edit_button" onClick={() => setIsEditing(true)}>🖉 Edit Profile</button>
+                </div>
+              </div>
+            ) : (
+              <form onSubmit={handleSubmit} className="profile_edit_form">
 
-              <label htmlFor="fileUpload" className="custom_file_button">
-              🖉 Change profile photo
-              </label>
-              <input
-                id="fileUpload"
-                className="profile_input_photo"
-                type="file"
-                onChange={handleFileChange}  
-                accept="image/*" 
-              />
+                  <label htmlFor="fileUpload" className="custom_file_button">
+                  🖉 Change profile photo
+                  </label>
+                  <input
+                    id="fileUpload"
+                    className="profile_input_photo"
+                    type="file"
+                    onChange={handleFileChange}  
+                    accept="image/*" 
+                  />
 
-            <h2 className="profile_edit_title">Personal Info Edit:</h2>
+                <h2 className="profile_edit_title">Personal Info Edit:</h2>
 
-              <label>Name:</label>
-              <input
-                className="edit_profile_input"
-                type="text"
-                value={userName}
-                onChange={(e) => setUserName(e.target.value)}
-              />
-            
-              <label>Email:</label>
-              <input
-                className="edit_profile_input"
-                type="email"
-                value={userEmail}
-                onChange={(e) => setUserEmail(e.target.value)}
-              />
-            
-              <label>Password:</label>
-              <input
-                className="edit_profile_input"
-                type="password" 
-                value={userPassword}
-                onChange={(e) => setUserPassword(e.target.value)}
-              />
+                  <label>Name:</label>
+                  <input
+                    className="edit_profile_input"
+                    type="text"
+                    value={userName}
+                    onChange={(e) => setUserName(e.target.value)}
+                  />
                 
-              <label>Select Role:</label>
-              <select className="role_options"
-                value={selectedRole}
-                onChange={(e) => {
-                  setSelectedRole(e.target.value);
-                  localStorage.setItem('selectedRole', e.target.value); // SAVED ON LOCALSTORAGE
-                }}
-                required
-              >
-                <option value="">Select Role</option>
-                {roles.map((role) => (
-                  <option key={role.value} value={role.value}>
-                    {role.label}
-                  </option>
-                ))}
-              </select>
-            <div className="edit_buttons">
-              <button className="save_button" type="submit">Save</button>
-              <button className="cancel_button" type="button" onClick={() => setIsEditing(false)}>Cancel</button>
+                  <label>Email:</label>
+                  <input
+                    className="edit_profile_input"
+                    type="email"
+                    value={userEmail}
+                    onChange={(e) => setUserEmail(e.target.value)}
+                  />
+                
+                  <label>Password:</label>
+                  <input
+                    className="edit_profile_input"
+                    type="password" 
+                     value={userPassword ? '*****' : ''}
+                    onChange={(e) => setUserPassword(e.target.value)}
+                  />
+                    
+                  <label>Select Role:</label>
+                  <select className="role_options"
+                    value={selectedRole}
+                    onChange={(e) => {
+                      setSelectedRole(e.target.value);
+                      localStorage.setItem('selectedRole', e.target.value); // SAVED ON LOCALSTORAGE
+                    }}
+                    required
+                  >
+                    <option value="">Select Role</option>
+                    {roles.map((role) => (
+                      <option key={role.value} value={role.value}>
+                        {role.label}
+                      </option>
+                    ))}
+                  </select>
+                <div className="edit_buttons">
+                  <button className="save_button" type="submit">Save</button>
+                  <button className="cancel_button" type="button" onClick={() => setIsEditing(false)}>Cancel</button>
+                </div>
+              </form>
+            )}
+          </div>
+          <div className="profile_middle_section">
+            <img src={clock} alt="clock photo" className="clock_photo"/>
+            <div className="hours_worked_main_info">
+              <h2 className="hours_worked_main_title">Hours Worked This Year:</h2>
+              <p className="hours_worked_info"><strong>200 Hours</strong></p>
             </div>
-          </form>
-        )}
-      </div>
-      <div className="profile_middle_section">
-        <img src={clock} alt="clock photo" className="clock_photo"/>
-        <div className="hours_worked_main_info">
-          <h2 className="hours_worked_main_title">Total Hours Worked:</h2>
-          <p className="hours_worked_info"><strong>200 Hours</strong></p>
+            <h3 className="hours_worked_title">Hours Worked Today:</h3>
+            <p className="hours_worked_info" style={{ color: 'lightgreen' }}>8 Hours</p>
+            <h3 className="hours_worked_title">Hours Worked This Week:</h3>
+            <p className="hours_worked_info">40 Hours</p>
+            <h3 className="hours_worked_title">Hours Worked This Month:</h3>
+            <p className="hours_worked_info">176 Hours</p>
+            
+          </div>
+          <div className="profile_right_section">
+            <img src={vacations} alt="profile photo" className="vacations_photo"/>
+            <div className="vacations_info_content">
+              <h2 className="vacations_title">Annual leave used:</h2>
+              <p className="vacations_info">12 Days</p>
+              <h2 className="vacations_title">Annual leave outstanding:</h2>
+              <p className="vacations_info">10 Days</p>
+              <h2 className="vacations_title">Carried over days:</h2>
+              <p className="vacations_info">6 Days</p>
+            </div>
+            <button className="schedule_vacations_button">🗓️ Schedule annual leave</button>
+          </div>
         </div>
-        <h3 className="hours_worked_title">Hours Worked Today:</h3>
-        <p className="hours_worked_info" style={{ color: 'lightgreen' }}>8 Hours</p>
-        <h3 className="hours_worked_title">Hours Worked This Week:</h3>
-        <p className="hours_worked_info">40 Hours</p>
-        <h3 className="hours_worked_title">Hours Worked This Month:</h3>
-        <p className="hours_worked_info">176 Hours</p>
-        <h3 className="hours_worked_title">Hours Worked This Year:</h3>
-        <p className="hours_worked_info">200 Hours</p>
       </div>
-      <div className="profile_right_section">
-        <img src={vacations} alt="profile photo" className="vacations_photo"/>
-        <div className="vacations_info_content">
-          <h2 className="vacations_title">Annual leave used:</h2>
-          <p className="vacations_info">12 Days</p>
-          <h2 className="vacations_title">Annual leave outstanding:</h2>
-          <p className="vacations_info">10 Days</p>
-          <h2 className="vacations_title">Carried over days:</h2>
-          <p className="vacations_info">6 Days</p>
-        </div>
-        <button className="schedule_vacations_button">🗓️ Schedule annual leave</button>
-      </div>
-    </div>
+    </div>  
+    
   );
 };
 

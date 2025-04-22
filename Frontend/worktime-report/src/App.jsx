@@ -42,12 +42,12 @@ const App = () => {
         }
       });
       console.log("ID criado:", response.data.cr6ca_employeeid);
-      alert("Usuário registrado com sucesso!");
+      alert("User sucessfully registered!");
       localStorage.setItem('registerMessage', 'Register in evaluation');
       navigate('/');  // Navigates to index page after success
     } catch (error) {
-      console.error('Erro ao registrar usuário:', error);
-      setErrorMessage('Erro ao registrar usuário. Tente novamente.');
+      console.error('Error registering user:', error);
+      setErrorMessage('Error while registering user. Please try again.');
     } finally {
       setLoading(false); // Finishes Loading
     }
@@ -60,13 +60,13 @@ const App = () => {
     try {
       const response = await axios.post("http://localhost:8000/login", { email, password });
   
-      localStorage.setItem("user", JSON.stringify(response.data.user)); // salva o nome, email, etc
+      localStorage.setItem("user", JSON.stringify(response.data.user)); // Saves user data
   
-      alert("Login bem-sucedido!");
-      window.location.href = "/dashboard"; // ou usa useNavigate("/dashboard")
+      alert("Successful login!");
+      window.location.href = "/dashboard"; // Navigates to dashboard
     } catch (error) {
-      console.error("Erro no login:", error.response?.data || error.message);
-      alert("Email ou senha inválidos. Tente novamente.");
+      console.error("Login error:", error.response?.data || error.message);
+      alert("Invalid email or password. Please try again.");
     }
     
   };

@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import BannerAndFooter from '../components/BannerAndFooter';
 import Header from '../components/Header';
 import React, { useState } from 'react';
@@ -10,11 +11,19 @@ import { Outlet } from 'react-router-dom';
 FROM MAIN DASHBOARD (MAIN APP PAGE)*/
 const MainDashboard = () => {
 
+  const [userType, setUserType] = useState('');
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
   const navigate = useNavigate();
   const [currentPage, setCurrentPage] = useState("Dashboard");
   const [selectedPage, setSelectedPage] = useState("Dashboard");
+
+  useEffect(() => {
+    const user = JSON.parse(localStorage.getItem("user"));
+    if (user?.usertype) {
+      setUserType(user.usertype);
+    }
+  }, []);
 
   // ARROW FUNCTION TO NAVIGATE BETWEEN PAGES
   const handlePageClick = (page) => {
@@ -31,8 +40,8 @@ const MainDashboard = () => {
       case "Vacations":
         navigate("/dashboard/vacations");
         break;
-      case "Settings":
-        navigate("/dashboard/settings");
+      case "Management":
+        navigate("/dashboard/management");
         break;
       case "Profile":
         navigate("/dashboard/profile");
@@ -49,7 +58,7 @@ const MainDashboard = () => {
         <Header currentPage={currentPage} onNavigate={handlePageClick}/>
         <div className="dashboard_container"> 
           <div className="main_layout">
-            {/* Botão para abrir/fechar */}
+            {/* Open/Close Button*/}
             <button className="toggle_btn" onClick={toggleSidebar}>
               {sidebarOpen ? '←' : '→'}
             </button>
@@ -57,16 +66,31 @@ const MainDashboard = () => {
             {/* Sidebar */}
             <aside className={`sidebar ${sidebarOpen ? 'open' : 'closed'}`}>
             <ul className="options">
-              <li onClick={() => handlePageClick("Dashboard")} className={selectedPage === "Dashboard" ? "selected" : ""}><span className="option_icon">🏠</span><span className="label">Dashboard</span></li>
-              <li onClick={() => handlePageClick("Reports")} className={selectedPage === "Reports" ? "selected" : ""}><span className="option_icon">📊</span><span className="label">Reports</span></li>
-              <li onClick={() => handlePageClick("Vacations")} className={selectedPage === "Vacations" ? "selected" : ""}><span className="option_icon">📆</span><span className="label">Vacations</span></li>
-              <li onClick={() => handlePageClick("Settings")} className={selectedPage === "Settings" ? "selected" : ""}><span className="option_icon">⚙️</span><span className="label">Settings</span></li>
-              <li onClick={() => handleLogout(navigate)}><span className="option_icon">🔒</span><span className="label_special_hover">Exit</span></li>
+              <li onClick={() => handlePageClick("Dashboard")} className={selectedPage === "Dashboard" ? "selected" : ""}><span className="option_icon" title="Dashboard">🏠</span><span className="label">Dashboard</span></li>
+
+              <li onClick={() => handlePageClick("Reports")} className={selectedPage === "Reports" ? "selected" : ""}><span className="option_icon" title="Reports">📊</span><span className="label">Reports</span></li>
+
+              <li onClick={() => handlePageClick("Vacations")} className={selectedPage === "Vacations" ? "selected" : ""}><span className="option_icon" title="Vacations">📆</span><span className="label">Vacations</span></li>
+
+              <li onClick={() => handlePageClick("Profile")} className={selectedPage === "Profile" ? "selected" : ""}><span className="option_icon" title="Profile">🧑‍💼</span><span className="label">Profile</span></li>
+
+              {userType === 313330001 && (
+                <li
+                  onClick={() => handlePageClick("Management")}
+                  className={selectedPage === "Management" ? "selected" : ""}
+                  title="Management"
+                >
+                  <span className="option_icon">⚙️</span>
+                  <span className="label">Management</span>
+                </li>
+              )}
+
+              <li onClick={() => handleLogout(navigate)}><span className="option_icon" title="Logout">🔒</span><span className="label_special_hover">Exit</span></li>
             </ul>
             <img src={findMoreIcon} alt="Findmore Logo" className="findmore_logo" />
             </aside>
 
-            {/* Conteúdo principal */}
+            {/* Main content */}
             <div className={`content ${sidebarOpen ? 'content_default' : 'content_expanded'}`}>
               <Outlet />  
             </div>

@@ -1,0 +1,168 @@
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+.management_content {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  box-sizing: border-box;
+  flex-grow: 1;
+  overflow: hidden;
+}
+
+.management_left_section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: calc(33.33% - 1vh);
+  border-right: 1vh solid rgba(255, 255, 255, 0.2);
+}
+
+.manage_title {
+  margin-top: 0vh;
+  background-color: darkslategrey;
+  padding: 1vh 2vh;
+  border-radius: 2vh;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.users_list_table {
+  width: 22vw;  /* Largura da tabela */
+  max-height: 55vh;  /* Altura máxima da tabela */
+  overflow-y: auto;  /* Scroll vertical se o conteúdo ultrapassar a altura */
+  margin-top: 2vh;
+  border:none;
+  border-radius: 2vh;
+  display: block;  /* Permite o scroll apenas na altura */
+  margin-bottom: 2vh; /* Espaço abaixo da tabela */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.users_list_table table {
+  width: 100%;  /* A tabela ocupa toda a largura disponível */
+  table-layout: fixed;  /* Tabela de layout fixo */
+  border-spacing: 0 1vh;  /* Espaçamento entre as linhas */
+  font-size: 0.75rem;  /* Fonte menor para a tabela */
+  background-color:rgb(32, 31, 31);
+}
+
+.users_list_table th, .users_list_table td {
+  text-align: left;
+  padding: 0.2vh 0.01vh;  /* Maior espaçamento interno nas células */
+  background-color: darkslategrey;
+  text-align: center;
+  margin-bottom: 0.5vh;  /* Margem entre as linhas */
+  overflow: hidden;  /* Esconde o conteúdo que ultrapassar o limite */
+}
+
+.users_list_table th {
+  background-color: rgb(32, 31, 31);  /* Cor de fundo para os cabeçalhos */
+  color: whitesmoke;  /* Cor do texto dos cabeçalhos */
+  font-size: 0.7rem;  /* Diminui o tamanho da fonte nos cabeçalhos */
+  padding-top: 1vh;  /* Padding superior para os cabeçalhos */
+  padding-bottom: 1vh;  /* Padding inferior para os cabeçalhos */
+  position: sticky;  /* Cabeçalhos fixos */
+  top: 0;  /* Fixação no topo */
+  z-index: 1;  /* Garante que os cabeçalhos fiquem acima das linhas */
+}
+
+.users_list_table td {
+  white-space: nowrap;  /* Impede que o texto quebre para a linha seguinte */
+  text-overflow: ellipsis;  /* Adiciona reticências quando o conteúdo ultrapassa */
+  font-weight: bold;
+}
+
+.users_list_table tr {
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);  /* Sombra nas linhas */
+  border-radius: 8px;  /* Bordas arredondadas nas células */
+}
+
+.user_profile_photo {
+  height: 5vh;
+  border-radius: 50%;  /* Imagem circular */
+  object-fit: cover;
+}
+
+.usertype_options {
+  width: 45%;
+  margin-top: 1vh;
+}
+
+.users_list_actions {
+  display: flex;
+  flex-direction: column;
+}
+
+.users_edit_action {
+  border: none;
+  background-color: rgb(3, 154, 3);
+  cursor: pointer;
+}
+
+.users_edit_action:hover {
+  background-color: green;
+}
+
+.users_delete_actions {
+  border: none;
+  background-color: rgb(171, 51, 51);
+  cursor: pointer;
+}
+
+.users_delete_actions:hover {
+  background-color: rgb(134, 43, 43);
+}
+
+/**/
+.management_middle_section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: start;
+  width: calc(33.33% - 1vh);
+  border-right: 1vh solid rgba(255, 255, 255, 0.2);
+  padding: 7vh 0vw;/*teste*/
+}
+
+.react-calendar {
+  background: #1e1e2f;
+  border: none;
+  border-radius: 12px;
+  padding: 1rem;
+  color: white;
+  font-family: 'Poppins', sans-serif;
+  font-size: 1.5vh;
+  text-overflow: ellipsis;
+  text-align: center;
+  width: 20vw;
+}
+
+.react-calendar__tile--active {
+  background: #00ffae;
+  color: black;
+  border-radius: 8px;
+}
+
+.weekend {
+  background: rgb(132, 216, 93);
+}
+
+.custom-marker {
+  font-size: 0.8rem;
+  color: #ffd700;
+}
+
+/**/
+.management_right_section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: calc(33.33% - 1vh);
+}
