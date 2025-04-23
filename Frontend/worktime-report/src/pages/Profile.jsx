@@ -14,6 +14,7 @@ const Profile = () => {
   const [selectedPhoto, setSelectedPhoto] = useState(null);
   const [profilePhotoUrl, setProfilePhotoUrl] = useState(defaultProfilePhoto);
   const [isEditing, setIsEditing] = useState(false);
+  const [vacationData, setVacationData] = useState(null);
 
   // LOADING USER DATA AND ROLE TO SHOW ON PERSONAL INFO
   useEffect(() => {
@@ -38,11 +39,26 @@ const Profile = () => {
             setProfilePhotoUrl(userData.photo_url);
           }
         } catch (error) {
-          console.error("Error retreiving updated photo:", error);
+          console.error("Error retrieving updated photo:", error);
         }
       };
 
       fetchUserData();
+
+      // FETCH VACATION DATA BASED ON USER ID
+      const fetchVacationData = async () => {
+        try {
+          const response = await axios.get(`http://localhost:8000/get-vacation-balance/${user.id}`);
+          if (response.data.vacation_balances && response.data.vacation_balances.length > 0) {
+            const sorted = response.data.vacation_balances.sort((a, b) => b.year - a.year);
+            setVacationData(sorted[0]); // Pega o saldo de férias mais recente
+          }
+        } catch (error) {
+          console.error('Erro ao buscar saldo de férias:', error);
+        }
+      };
+
+      fetchVacationData();
     }
 
     // SAVES THE SELECTED ROLE ON LOALSTORAGE
@@ -249,6 +265,9 @@ const Profile = () => {
               </form>
             )}
           </div>
+
+          <div className="divider_left"></div>
+
           <div className="profile_middle_section">
             <img src={clock} alt="clock photo" className="clock_photo"/>
             <div className="hours_worked_main_info">
@@ -263,15 +282,18 @@ const Profile = () => {
             <p className="hours_worked_info">176 Hours</p>
             
           </div>
+
+          <div className="divider_right"></div>
+
           <div className="profile_right_section">
-            <img src={vacations} alt="profile photo" className="vacations_photo"/>
+            <img src={vacations} alt="calendar photo" className="vacations_photo"/>
             <div className="vacations_info_content">
               <h2 className="vacations_title">Annual leave used:</h2>
-              <p className="vacations_info">12 Days</p>
+              <p className="vacations_info">{vacationData ? (22) - vacationData.available_days : 'Loading...'} Days</p>
               <h2 className="vacations_title">Annual leave outstanding:</h2>
-              <p className="vacations_info">10 Days</p>
+              <p className="vacations_info">{vacationData ? vacationData.available_days + (vacationData.carried_over_days || 0) : 'Loading...'} Days</p>
               <h2 className="vacations_title">Carried over days:</h2>
-              <p className="vacations_info">6 Days</p>
+              <p className="vacations_info">{vacationData ? vacationData.carried_over_days : 'Loading...'} Days</p>
             </div>
             <button className="schedule_vacations_button">🗓️ Schedule annual leave</button>
           </div>

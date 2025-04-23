@@ -13,16 +13,12 @@ const Management = () => {
   const [userPassword, setUserPassword] = useState('');
   const [selectedUserType, setSelectedUserType] = useState('');
   const [profilePhotoUrl, setProfilePhotoUrl] = useState('');
+  const [leaves, setLeaves] = useState([]);
   const userType = [
     { value: 313330000, label: "User" },
     { value: 313330001, label: "Admin" },
   ];
-
-  //test
-  const [leaves] = useState([
-    { id: 1, name: "João", start: "2025-04-25", end: "2025-04-27" },
-    { id: 2, name: "Maria", start: "2025-04-30", end: "2025-05-02" },
-  ]);
+  
 
 
   const MyCalendar = ({ leaves }) => {
@@ -165,13 +161,36 @@ const Management = () => {
     const fetchUsers = async () => {
       try {
         const response = await axios.get("http://localhost:8000/get-all-users");
+        console.log("Dados dos utilizadores:", response.data.users);
         setUsers(response.data.users);
       } catch (error) {
         console.error("Erro ao buscar os utilizadores:", error);
       }
     };
-
+  
+    const fetchLeaves = async () => {
+      try {
+        const response = await axios.get("http://localhost:8000/get-all-vacations");
+        console.log("Resposta das férias:", response.data);  // Adicionando o log aqui para inspecionar a estrutura real
+    
+        // Acessando o array correto 'vacations' em 'response.data'
+        const leavesData = response.data.vacations.map(leave => ({
+          id: leave.vacation_id,
+          name: leave.user.name, 
+          start: leave.start_date, 
+          end: leave.end_date, 
+          halfDay: leave.half_day, 
+        }));
+    
+        console.log("Dados formatados das férias:", leavesData);  // Verificando a transformação dos dados
+        setLeaves(leavesData);  // Atualiza o estado com os dados formatados
+      } catch (error) {
+        console.error("Erro ao buscar leaves:", error);
+      }
+    };
+  
     fetchUsers();
+    fetchLeaves();
   }, []);
 
   const getUserTypeLabel = (type) => {
@@ -290,6 +309,9 @@ const Management = () => {
           </>
         )}
       </div>
+
+      <div className="divider_left"></div>
+
       <div className="management_middle_section">
         <h1 className="manage_title"> Leave Management</h1>
         <div>
@@ -297,16 +319,19 @@ const Management = () => {
           <ul>
             {leaves.map((leave) => (
               <li key={leave.id}>
-                {leave.name}: {leave.start} - {leave.end}
+                {leave.name}: {new Date(leave.start).toLocaleDateString()} - {new Date(leave.end).toLocaleDateString()}
+                {leave.halfDay === 1 && <span> (Half Day)</span>}
               </li>
             ))}
           </ul>
         </div>
-
         <div className="calendar">
           <MyCalendar leaves={leaves} />
         </div>
       </div>
+
+      <div className="divider_right"></div>
+
       <div className="management_right_section">
         <h1 className="manage_title">Reports Management</h1>
         <div className="reports_container">

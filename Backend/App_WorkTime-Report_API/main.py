@@ -344,4 +344,244 @@ async def get_role_values():
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Erro retrieving options. {str(e)}")
+
+#############################
+# GET USER VACATION BALANCE #
+#############################
+@app.get("/get-vacation-balance/{user_id}")
+async def get_vacation_balance(user_id: str):
+    try:
+        token = get_access_token()
+
+        if not user_id:
+            raise HTTPException(status_code=400, detail="User ID is required")
+
+        url = f"{DYNAMICS_URL}/api/data/v9.2/cr6ca_vacationbalances?$select=cr6ca_year,cr6ca_availabledays,cr6ca_carriedoverdays&$filter=_cr6ca_userid_value eq '{user_id}'"
+        headers = {
+            "Authorization": f"Bearer {token}",
+            "Accept": "application/json"
+        }
+
+        response = requests.get(url, headers=headers)
+
+        if response.status_code != 200:
+            raise HTTPException(status_code=500, detail="Error fetching vacation balances")
+
+        data = response.json().get("value", [])
+
+        if not data:
+            return {"message": "No vacation balance found for this user."}
+
+        vacation_balances = []
+        for item in data:
+            vacation_balances.append({
+                "year": item.get("cr6ca_year"),
+                "available_days": item.get("cr6ca_availabledays"),
+                "carried_over_days": item.get("cr6ca_carriedoverdays")
+            })
+
+        return {"vacation_balances": vacation_balances}
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error fetching data: {str(e)}")  
+ 
+#########################
+# USER VACATION REQUEST #
+#########################   
+class VacationCreateRequest(BaseModel):
+    start_date: str  
+    end_date: str
+    half_day: float
+    vacation_status: int = 313330000 
+    user_id: str
     
+@app.post("/create-vacation")
+async def create_vacation(request: VacationCreateRequest):
+    try:
+        token = get_access_token()
+        if not token:
+            raise HTTPException(status_code=400, detail="Invalid access token")
+
+        headers = {
+            "Authorization": f"Bearer {token}",
+            "Content-Type": "application/json",
+            "OData-MaxVersion": "4.0",
+            "OData-Version": "4.0",
+            "Accept": "application/json",
+            "Prefer": "odata.include-annotations=*"
+        }
+
+        data = {
+            "cr6ca_startdate": request.start_date,
+            "cr6ca_enddate": request.end_date,
+            "cr6ca_halfday": request.half_day,
+            "cr6ca_vacationstatus": request.vacation_status,
+            "cr6ca_UserID@odata.bind": f"/cr6ca_employees({request.user_id})"
+        }
+
+        # Remove valores None
+        data = {k: v for k, v in data.items() if v is not None}
+
+        dynamics_url = f"{DYNAMICS_URL}/api/data/v9.2/cr6ca_vacations"
+        response = requests.post(dynamics_url, json=data, headers=headers)
+
+        if response.status_code in [201, 204]:
+            entity_id = response.headers.get("OData-EntityId")
+            vacation_id = None
+            if entity_id:
+                match = re.search(r"\(([^)]+)\)", entity_id)
+                vacation_id = match.group(1) if match else None
+            return {
+                "message": "Vacation request successfully created!",
+                "vacation_id": vacation_id
+            }
+        else:
+            raise HTTPException(
+                status_code=response.status_code,
+                detail=f"Error creating vacation: {response.text}"
+            )
+
+    except Exception as e:
+        print("Vacation creation error:", str(e))
+        raise HTTPException(status_code=500, detail="Internal server error")
+ 
+#############################
+# GET USER VACATION REQUEST #
+#############################  
+@app.get("/get-all-vacations")
+async def get_all_vacations():
+    try:
+        token = get_access_token()
+        if not token:
+            raise HTTPException(status_code=400, detail="Invalid access token")
+
+        headers = {
+            "Authorization": f"Bearer {token}",
+            "Accept": "application/json",
+            "OData-MaxVersion": "4.0",
+            "OData-Version": "4.0",
+        }
+
+        # Expandindo o User relacionado (cr6ca_UserID)
+        url = f"{DYNAMICS_URL}/api/data/v9.2/cr6ca_vacations?$expand=cr6ca_UserID($select=cr6ca_name,cr6ca_email)&$select=cr6ca_startdate,cr6ca_enddate,cr6ca_halfday,cr6ca_vacationstatus"
+
+        response = requests.get(url, headers=headers)
+
+        if response.status_code == 200:
+            raw_data = response.json().get("value", [])
+            formatted = []
+
+            for item in raw_data:
+                user = item.get("cr6ca_UserID", {})
+                formatted.append({
+                    "vacation_id": item.get("cr6ca_vacationid"),
+                    "start_date": item.get("cr6ca_startdate"),
+                    "end_date": item.get("cr6ca_enddate"),
+                    "half_day": item.get("cr6ca_halfday"),
+                    "vacation_status": item.get("cr6ca_vacationstatus"),
+                    "user": {
+                        "name": user.get("cr6ca_name"),
+                        "email": user.get("cr6ca_email"),
+                    }
+                })
+
+            return {"vacations": formatted}
+
+        else:
+            raise HTTPException(
+                status_code=response.status_code,
+                detail=f"Error fetching vacation requests: {response.text}"
+            )
+
+    except Exception as e:
+        print("Error fetching all vacation requests:", str(e))
+        raise HTTPException(status_code=500, detail="Internal server error")
+
+################################
+# UPDATE USER VACATION REQUEST #
+################################ 
+class VacationStatusUpdateRequest(BaseModel):
+    vacation_status: int  # 313330001 = Aprovado, 313330002 = Rejeitado
+    reason_if_rejected: Optional[str] = None
+
+@app.patch("/update-vacation-status/{cr6ca_vacationid}")
+async def update_vacation_status(cr6ca_vacationid: str, data: VacationStatusUpdateRequest):
+    try:
+        token = get_access_token()
+        if not token:
+            raise HTTPException(status_code=400, detail="Invalid access token")
+
+        headers = {
+            "Authorization": f"Bearer {token}",
+            "Content-Type": "application/json",
+            "OData-MaxVersion": "4.0",
+            "OData-Version": "4.0",
+            "Accept": "application/json"
+        }
+
+        update_data = {
+            "cr6ca_vacationstatus": data.vacation_status
+        }
+
+        if data.reason_if_rejected:
+            update_data["cr6ca_reason_if_rejected"] = data.reason_if_rejected
+
+        url = f"{DYNAMICS_URL}/api/data/v9.2/cr6ca_vacations({cr6ca_vacationid})"
+        response = requests.patch(url, json=update_data, headers=headers)
+
+        if response.status_code in [200, 204]:
+            return {"message": "Vacation status successfully updated."}
+        else:
+            raise HTTPException(status_code=response.status_code, detail=f"Error updating vacation status: {response.text}")
+
+    except Exception as e:
+        print("Update vacation status error:", str(e))
+        raise HTTPException(status_code=500, detail="Internal server error")
+
+############################
+# GET USER VACATION STATUS #
+############################ 
+@app.get("/get-vacation-status-by-user-id/{user_id}")
+async def get_vacation_status_by_user_id(user_id: str):
+    try:
+        token = get_access_token()
+
+        if not token:
+            raise HTTPException(status_code=400, detail="Invalid access token")
+
+        # Cabeçalhos da requisição
+        headers = {
+            "Authorization": f"Bearer {token}",
+            "Accept": "application/json",
+            "OData-MaxVersion": "4.0",
+            "OData-Version": "4.0",
+        }
+
+        # Busca as férias mais recentes do utilizador, ordenadas pela data de criação (descendente)
+        url = f"{DYNAMICS_URL}/api/data/v9.2/cr6ca_vacations?$filter=_cr6ca_userid_value eq {user_id}&$orderby=createdon desc&$top=1&$select=cr6ca_vacationstatus,cr6ca_reasonifrejected,cr6ca_vacationid"
+
+        response = requests.get(url, headers=headers)
+
+        if response.status_code == 200:
+            result = response.json()
+
+            if result.get("value"):
+                vacation = result["value"][0]
+
+                vacation_status = vacation.get("cr6ca_vacationstatus")
+                reason_if_rejected = vacation.get("cr6ca_reasonifrejected", "No reason provided")
+                vacation_id = vacation.get("cr6ca_vacationid")
+
+                return {
+                    "vacation_status": vacation_status,
+                    "reason_if_rejected": reason_if_rejected,
+                    "vacation_id": vacation_id
+                }
+            else:
+                raise HTTPException(status_code=404, detail="No vacation request found for this user")
+
+        else:
+            raise HTTPException(status_code=response.status_code, detail=f"Error fetching vacation status: {response.text}")
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")

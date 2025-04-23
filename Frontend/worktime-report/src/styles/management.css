@@ -20,8 +20,7 @@ html, body {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  width: calc(33.33% - 1vh);
-  border-right: 1vh solid rgba(255, 255, 255, 0.2);
+  flex: 1;
 }
 
 .manage_title {
@@ -125,8 +124,7 @@ html, body {
   flex-direction: column;
   align-items: center;
   justify-content: start;
-  width: calc(33.33% - 1vh);
-  border-right: 1vh solid rgba(255, 255, 255, 0.2);
+  flex: 1;
   padding: 7vh 0vw;/*teste*/
 }
 
@@ -164,5 +162,5 @@ html, body {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  width: calc(33.33% - 1vh);
+  flex: 1;
 }

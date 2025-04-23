@@ -7,6 +7,7 @@ import './styles/header.css';
 import './styles/main_dashboard.css';
 import './styles/profile.css';
 import './styles/management.css';
+import './styles/vacations.css';
 import App from './App.jsx';
 import MainDashboard from './pages/MainDashboard';
 import Dashboard from './pages/Dashboard';

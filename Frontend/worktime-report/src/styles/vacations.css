@@ -1,0 +1,34 @@
+.vacations_content {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  box-sizing: border-box;
+}
+
+.vacations_left_section {
+  margin-top: 8vh;
+  flex:1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.vacations_right_section {
+  margin-top: 8vh;
+  flex:1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.divider {
+  display: flex;
+  align-self:center;
+  height: 90%;  /* A linha terá a altura total da tela */
+  width: 1vh;  
+  background-color: rgba(255, 255, 255, 0.2);  
+  position: absolute;
+  left: 50%;  
+}
