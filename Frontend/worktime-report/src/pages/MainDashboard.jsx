@@ -70,7 +70,7 @@ const MainDashboard = () => {
 
               <li onClick={() => handlePageClick("Reports")} className={selectedPage === "Reports" ? "selected" : ""}><span className="option_icon" title="Reports">📊</span><span className="label">Reports</span></li>
 
-              <li onClick={() => handlePageClick("Vacations")} className={selectedPage === "Vacations" ? "selected" : ""}><span className="option_icon" title="Vacations">📆</span><span className="label">Vacations</span></li>
+              <li onClick={() => handlePageClick("Vacations")} className={selectedPage === "Vacations" ? "selected" : ""}><span className="option_icon" title="Vacations">📆</span><span className="label">Annual leave</span></li>
 
               <li onClick={() => handlePageClick("Profile")} className={selectedPage === "Profile" ? "selected" : ""}><span className="option_icon" title="Profile">🧑‍💼</span><span className="label">Profile</span></li>
 

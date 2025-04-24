@@ -15,6 +15,12 @@
   align-items: center;
 }
 
+.annual_leave_photo {
+  margin-top: 1.5vh;
+  height: 18vh;
+  border: none;
+}
+
 .vacations_right_section {
   margin-top: 8vh;
   flex:1;
@@ -32,3 +38,158 @@
   position: absolute;
   left: 50%;  
 }
+
+.annual_leave_form {
+  display:flex;
+  flex-direction: column;
+  margin-top: 2vh;
+}
+
+.form_label {
+  margin-bottom: 1vh;
+}
+
+.form_input {
+  width: 60%;
+  height: 1vh;
+}
+
+.start_date_container {
+  display: flex;
+  align-items: center;
+  gap: 1.8vw;
+}
+
+.start_date_container input {
+  height: 15%; 
+  width: 60%;
+}
+
+
+.holiday_modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.holiday_modal_content {
+  background: #2c3e50;
+  color:whitesmoke;
+  padding: 20px;
+  border-radius: 10px;
+  max-width: 400px;
+  width: 90%;
+}
+
+.holiday_item {
+  margin-bottom: 10px;
+}
+
+.close_modal {
+  margin-top: 20px;
+  padding: 10px;
+  background-color:  rgb(171, 51, 51);
+  color: whitesmoke;
+  font-weight: bold;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.close_modal:hover {
+  background-color: rgb(134, 43, 43);
+}
+
+.holiday_icon {
+  cursor: pointer;
+  color: aqua;
+  font-size: 3.5vh;
+  margin-top: 0.5vh;
+  align-self:start;
+}
+
+.holiday_warning {
+  color: red;
+  font-size: 2vh;
+  margin-bottom: 3vh;
+}
+
+.secondary_title {
+  margin: 0vh;
+}
+
+.info {
+  margin-top: 0vh;
+  margin-bottom: 2vh;
+}
+
+.option_selected {
+  border-radius: 0.5vh;
+  border: none;
+  height: 5%;
+  width: 35%;
+}
+
+.submit_button {
+  border-radius: 0.5vh;
+  border: none;
+  height: 7%;
+  width: 70%;
+  margin-top: 3vh;
+  font-weight: bold;
+  background-color: green;
+  color: whitesmoke;
+  cursor:pointer;
+}
+
+.vacation_request_status {
+  margin-bottom: 0.5vh;
+}
+
+.status_text {
+  font-weight: bold;
+  margin-left: 5px;
+}
+
+.status_text.rejected {
+  color: rgb(255, 0, 0);
+}
+
+.status_text.pending {
+  color: orange;
+}
+
+.status_text.approved {
+  color: lightgreen;
+}
+
+.rejection_reason {
+  display:flex;
+  flex-direction: column;
+}
+
+.rejection_reason label {
+  margin-top: 2vh;
+  margin-bottom: 1vh;
+  font-weight: bold;
+  color:lightgreen;
+}
+
+.rejection_reason textarea {
+  height: 6vh; 
+  resize: none; 
+  overflow-y: auto; 
+  width: 25vh; 
+  padding: 0.5vh;
+  font-size: 2vh;
+  border: 0.3vh solid #ccc;
+  border-radius: 1vh;
+  background-color: lightgrey;
+}
+

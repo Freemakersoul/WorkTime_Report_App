@@ -14,12 +14,49 @@ const Management = () => {
   const [selectedUserType, setSelectedUserType] = useState('');
   const [profilePhotoUrl, setProfilePhotoUrl] = useState('');
   const [leaves, setLeaves] = useState([]);
+  const [holidays, setHolidays] = useState([]);
   const userType = [
     { value: 313330000, label: "User" },
     { value: 313330001, label: "Admin" },
   ];
-  
 
+  const handleApprove = async (leaveId) => {
+    try {
+      await axios.patch(`http://localhost:8000/update-vacation-status/${leaveId}`, {
+        vacation_status: 313330001  // Aprovado
+      });
+      setLeaves((prevLeaves) => prevLeaves.filter((leave) => leave.id !== leaveId));
+      alert("Leave request approved!");
+    } catch (error) {
+      console.error("Error approving leave:", error);
+      alert("Failed to approve leave request.");
+    }
+  };
+  
+  const handleReject = async (leaveId) => {
+    const reason = prompt("Please provide a reason for rejecting:");
+    if (!reason) return;
+  
+    try {
+      await axios.patch(
+        `http://localhost:8000/update-vacation-status/${leaveId}`,
+        {
+          vacation_status: 313330002,
+          reason_if_rejected: reason,
+        },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+      setLeaves((prevLeaves) => prevLeaves.filter((leave) => leave.id !== leaveId));
+      alert("Leave request rejected!");
+    } catch (error) {
+      console.error("Error rejecting leave:", error);
+      alert("Failed to reject leave request.");
+    }
+  };
 
   const MyCalendar = ({ leaves }) => {
     const [date, setDate] = useState(new Date());
@@ -46,28 +83,48 @@ const Management = () => {
       );
     };
 
+    const isHoliday = (date) => {
+      return holidays.some(h =>
+        h.date.getFullYear() === date.getFullYear() &&
+        h.date.getMonth() === date.getMonth() &&
+        h.date.getDate() === date.getDate()
+      );
+    };
+
     return (
       <div className="my-calendar-wrapper">
         <Calendar
           onChange={setDate}
           value={date}
           tileClassName={({ date }) => {
-            if (date.getDay() === 0 || date.getDay() === 6) {
-              return 'weekend';
-            }
-            if (isLeaveDay(date)) {
-              return 'leave-day';
-            }
+            if (isHoliday(date)) return 'holiday';
+            if (isLeaveDay(date)) return 'leave-day';
+            if (date.getDay() === 0 || date.getDay() === 6) return 'weekend';
+            return null;  // Se não for nenhum dos casos, não altera a célula
           }}
           tileContent={({ date }) => {
-            const matchingLeave = leaves.find((leave) => {
-              const start = new Date(leave.start);
-              const end = new Date(leave.end);
-              return date >= start && date <= end;
-            });
-            return matchingLeave ? (
-              <span className="leave-marker" title={matchingLeave.name}>🌴</span>
-            ) : null;
+            const leave = leaves.find(l => date >= new Date(l.start) && date <= new Date(l.end));
+            const holiday = holidays.find(h => 
+              h.date.getFullYear() === date.getFullYear() &&
+              h.date.getMonth() === date.getMonth() &&
+              h.date.getDate() === date.getDate()
+            );
+  
+            return (
+              <>
+                {leave && holiday ? (
+                  <span className="leave-holiday-icons">
+                    <span className="leave-marker" title={leave.name}>🌴</span>
+                    <span className="holiday-marker" title={holiday.name}>🎉</span>
+                  </span>
+                ) : (
+                  <>
+                    {leave && <span className="leave-marker" title={leave.name}>🌴</span>}
+                    {holiday && <span className="holiday-marker" title={holiday.name}>🎉</span>}
+                  </>
+                )}
+              </>
+            );
           }}
         />
       </div>
@@ -180,15 +237,31 @@ const Management = () => {
           start: leave.start_date, 
           end: leave.end_date, 
           halfDay: leave.half_day, 
+          status: leave.vacation_status 
         }));
+
+        const sortedLeaves = leavesData.sort((a, b) => new Date(b.start) - new Date(a.start));
     
-        console.log("Dados formatados das férias:", leavesData);  // Verificando a transformação dos dados
-        setLeaves(leavesData);  // Atualiza o estado com os dados formatados
+        setLeaves(sortedLeaves);  
       } catch (error) {
         console.error("Erro ao buscar leaves:", error);
       }
     };
-  
+
+    const fetchHolidays = async () => {
+      try {
+        const response = await axios.get("http://localhost:8000/get-public-holidays"); // 
+        const formatted = response.data.holidays.map(h => ({
+          date: new Date(h.cr6ca_holidaydate),
+          name: h.cr6ca_description
+        }));
+        setHolidays(formatted);
+      } catch (error) {
+        console.error("Erro ao buscar feriados:", error);
+      }
+    };
+    
+    fetchHolidays();
     fetchUsers();
     fetchLeaves();
   }, []);
@@ -206,7 +279,7 @@ const Management = () => {
       <div className="management_left_section">
         {viewMode === 'list' ? (
           <>
-            <h1 className="manage_title">Users Management</h1> 
+            <h1 className="main_title">Users Management</h1> 
             <div className="users_list_table">
               <table>
                 <thead>
@@ -313,27 +386,49 @@ const Management = () => {
       <div className="divider_left"></div>
 
       <div className="management_middle_section">
-        <h1 className="manage_title"> Leave Management</h1>
+        <h1 className="main_title"> Leave Management</h1>
         <div>
-          <h2>Leave requests:</h2>
-          <ul>
-            {leaves.map((leave) => (
-              <li key={leave.id}>
-                {leave.name}: {new Date(leave.start).toLocaleDateString()} - {new Date(leave.end).toLocaleDateString()}
-                {leave.halfDay === 1 && <span> (Half Day)</span>}
-              </li>
-            ))}
-          </ul>
+          <table className="leave_table">
+            <thead>
+              <tr>
+                <th>User</th>
+                <th>Start Date</th>
+                <th>End Date</th>
+                <th>Half Day</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {leaves.map((leave) => (
+                <tr key={leave.id}>
+                  <td>{leave.name}</td>
+                  <td>{new Date(leave.start).toLocaleDateString()}</td>
+                  <td>{new Date(leave.end).toLocaleDateString()}</td>
+                  <td>{leave.halfDay === 1 ? "Yes" : "No"}</td>
+                  <td>
+                    {leave.status === 313330000 && ( // 313330000 = Pendente
+                      <>
+                        <button className="approve_button" onClick={() => handleApprove(leave.id)}>✅</button>
+                        <button className="reject_button" onClick={() => handleReject(leave.id)}>❌</button>
+                      </>
+                    )}
+                    {leave.status === 313330001 && <span className="status_approved">✅</span>}
+                    {leave.status === 313330002 && <span className="status_rejected">❌</span>}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
         <div className="calendar">
-          <MyCalendar leaves={leaves} />
+          <MyCalendar leaves={leaves} holidays={holidays}/>
         </div>
       </div>
 
       <div className="divider_right"></div>
 
       <div className="management_right_section">
-        <h1 className="manage_title">Reports Management</h1>
+        <h1 className="main_title">Reports Management</h1>
         <div className="reports_container">
           {/* Exemplo estático de relatório - substituir por dados do banco */}
           <div className="report_card">

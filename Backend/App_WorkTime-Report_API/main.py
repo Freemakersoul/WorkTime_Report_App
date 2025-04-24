@@ -524,15 +524,71 @@ async def update_vacation_status(cr6ca_vacationid: str, data: VacationStatusUpda
         }
 
         if data.reason_if_rejected:
-            update_data["cr6ca_reason_if_rejected"] = data.reason_if_rejected
+            update_data["cr6ca_reasonifrejected"] = data.reason_if_rejected
 
+        # Atualiza o status da solicitação de férias
         url = f"{DYNAMICS_URL}/api/data/v9.2/cr6ca_vacations({cr6ca_vacationid})"
         response = requests.patch(url, json=update_data, headers=headers)
 
-        if response.status_code in [200, 204]:
-            return {"message": "Vacation status successfully updated."}
-        else:
+        if response.status_code not in [200, 204]:
             raise HTTPException(status_code=response.status_code, detail=f"Error updating vacation status: {response.text}")
+
+        ### NOVO: Se for aprovado, atualiza saldo de férias ###
+        if data.vacation_status == 313330001:  # Approved
+            
+            # 1. Buscar detalhes da solicitação de férias (start, end, half day, user)
+            vacation_url = f"{DYNAMICS_URL}/api/data/v9.2/cr6ca_vacations({cr6ca_vacationid})?$select=cr6ca_startdate,cr6ca_enddate,cr6ca_halfday,_cr6ca_userid_value"
+            vacation_resp = requests.get(vacation_url, headers=headers)
+
+            if vacation_resp.status_code != 200:
+                raise HTTPException(status_code=vacation_resp.status_code, detail="Error fetching vacation details")
+
+            vacation = vacation_resp.json()
+            start_date = datetime.fromisoformat(vacation["cr6ca_startdate"])
+            end_date = datetime.fromisoformat(vacation["cr6ca_enddate"])
+            half_day = vacation.get("cr6ca_halfday", 1.0)
+            user_id = vacation["_cr6ca_userid_value"]
+
+            # 2. Buscar o saldo atual do utilizador
+            balance_url = f"{DYNAMICS_URL}/api/data/v9.2/cr6ca_vacationbalances?$filter=_cr6ca_userid_value eq {user_id}&$orderby=cr6ca_year desc&$top=1"
+            balance_resp = requests.get(balance_url, headers=headers)
+
+            if balance_resp.status_code != 200:
+                raise HTTPException(status_code=balance_resp.status_code, detail="Error fetching vacation balance")
+
+            balances = balance_resp.json().get("value", [])
+            if not balances:
+                raise HTTPException(status_code=404, detail="No vacation balance found for this user")
+
+            balance = balances[0]
+            balance_id = balance["cr6ca_vacationbalanceid"]
+            available_days = balance["cr6ca_availabledays"]
+
+            # 3. Calcular quantos dias foram pedidos
+            total_days = (end_date - start_date).days + 1
+            if half_day == 0.5:
+                total_days = 0.5
+                
+            if total_days > available_days:
+                raise HTTPException(status_code=400, detail="O utilizador não tem dias suficientes para esta marcação.")
+
+            new_available_days = available_days - total_days
+
+            if new_available_days < 0:
+                new_available_days = 0  
+
+            # 4. Atualizar o saldo
+            update_balance_data = {
+                "cr6ca_availabledays": new_available_days
+            }
+
+            balance_update_url = f"{DYNAMICS_URL}/api/data/v9.2/cr6ca_vacationbalances({balance_id})"
+            balance_update_resp = requests.patch(balance_update_url, json=update_balance_data, headers=headers)
+
+            if balance_update_resp.status_code not in [200, 204]:
+                raise HTTPException(status_code=balance_update_resp.status_code, detail="Error updating vacation balance")
+
+        return {"message": "Vacation status and balance updated successfully."}
 
     except Exception as e:
         print("Update vacation status error:", str(e))
@@ -585,3 +641,70 @@ async def get_vacation_status_by_user_id(user_id: str):
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
+    
+################################
+# DELETE USER VACATION REQUEST #
+################################ 
+@app.delete("/delete-vacation/{cr6ca_vacationid}")
+async def delete_vacation(cr6ca_vacationid: str):
+    try:
+        token = get_access_token()
+        if not token:
+            raise HTTPException(status_code=400, detail="Invalid access token")
+
+        headers = {
+            "Authorization": f"Bearer {token}",
+            "Accept": "application/json",
+        }
+
+        dynamics_url = f"{DYNAMICS_URL}/api/data/v9.2/cr6ca_vacations({cr6ca_vacationid})"
+        response = requests.delete(dynamics_url, headers=headers)
+
+        if response.status_code == 204:
+            return {"message": "Vacation request deleted successfully!"}
+        elif response.status_code == 404:
+            raise HTTPException(status_code=404, detail="Vacation request not found")
+        else:
+            raise HTTPException(
+                status_code=response.status_code,
+                detail=f"Error deleting vacation: {response.text}"
+            )
+
+    except Exception as e:
+        print("Vacation deletion error:", str(e))
+        raise HTTPException(status_code=500, detail="Internal server error")
+    
+############################
+# GET PUBLIC HOLIDAYS LIST #
+############################
+@app.get("/get-public-holidays")
+async def get_public_holidays():
+    try:
+        token = get_access_token()
+        if not token:
+            raise HTTPException(status_code=400, detail="Invalid access token")
+
+        headers = {
+            "Authorization": f"Bearer {token}",
+            "Accept": "application/json",
+            "OData-MaxVersion": "4.0",
+            "OData-Version": "4.0",
+        }
+
+        url = f"{DYNAMICS_URL}/api/data/v9.2/cr6ca_publicholidaies?$select=cr6ca_description,cr6ca_holidaydate"
+        response = requests.get(url, headers=headers)
+
+        if response.status_code == 200:
+            result = response.json()
+            holidays = result.get("value", [])
+
+            return {"holidays": holidays}
+        else:
+            raise HTTPException(
+                status_code=response.status_code,
+                detail=f"Error fetching public holidays: {response.text}"
+            )
+
+    except Exception as e:
+        print("Public holiday fetch error:", str(e))
+        raise HTTPException(status_code=500, detail="Internal server error")
