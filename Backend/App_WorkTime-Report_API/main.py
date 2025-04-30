@@ -3,6 +3,7 @@
 #######################
 from fastapi import Query, Form, File, UploadFile, FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 import requests
 import re
 from datetime import datetime
@@ -12,6 +13,7 @@ from pydantic import BaseModel
 from typing import Optional
 from fastapi.staticfiles import StaticFiles
 import base64
+import logging
 
 ##########################
 # FastAPI INITIALIZATION #
@@ -321,7 +323,7 @@ async def delete_user(cr6ca_employeeid: str):
 async def get_role_values():
     try:
         token = get_access_token()
-        url = f"{DYNAMICS_URL}/api/data/v9.2/EntityDefinitions(LogicalName='cr6ca_memberrole')/Attributes(LogicalName='cr6ca_rolename')/Microsoft.Dynamics.CRM.PicklistAttributeMetadata?$select=LogicalName&$expand=OptionSet"
+        url = f"{DYNAMICS_URL}/api/data/v9.2/cr6ca_memberroles?$select=cr6ca_memberroleid,cr6ca_name"
 
         headers = {
             "Authorization": f"Bearer {token}",
@@ -332,18 +334,19 @@ async def get_role_values():
         if response.status_code != 200:
             raise HTTPException(status_code=500, detail="Error retrieving role options.")
 
-        options = response.json()["OptionSet"]["Options"]
         roles = []
+        records = response.json().get("value", [])
 
-        for option in options:
-            value = option["Value"]
-            label = option["Label"]["UserLocalizedLabel"]["Label"]
-            roles.append({"value": value, "label": label})
+        for record in records:
+            role_id = record.get("cr6ca_memberroleid")
+            role_name = record.get("cr6ca_name")
+            if role_id and role_name:
+                roles.append({"value": role_id, "label": role_name})
 
         return {"roles": roles}
 
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Erro retrieving options. {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error retrieving options: {str(e)}")
 
 #############################
 # GET USER VACATION BALANCE #
@@ -708,3 +711,414 @@ async def get_public_holidays():
     except Exception as e:
         print("Public holiday fetch error:", str(e))
         raise HTTPException(status_code=500, detail="Internal server error")
+
+####################
+# GET CLIENTS LIST #
+####################
+@app.get("/get-account-options")
+async def get_account_options():
+    try:
+        token = get_access_token()
+        if not token:
+            raise HTTPException(status_code=400, detail="Invalid access token")
+
+        headers = {
+            "Authorization": f"Bearer {token}",
+            "Accept": "application/json",
+            "OData-MaxVersion": "4.0",
+            "OData-Version": "4.0",
+        }
+
+        # Traz os campos name (nome da conta) e accountid (GUID)
+        url = f"{DYNAMICS_URL}/api/data/v9.2/accounts?$select=name,accountid"
+
+        response = requests.get(url, headers=headers)
+
+        if response.status_code == 200:
+            accounts = response.json().get("value", [])
+            return [
+                {"name": acc["name"], "id": acc["accountid"]}
+                for acc in accounts if "name" in acc and "accountid" in acc
+            ]
+        else:
+            raise HTTPException(status_code=response.status_code, detail=response.text)
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
+ 
+##########################
+# GET ACTIVITY TYPE LIST #
+##########################
+@app.get("/get-activitytype-options")
+async def get_activitytype_options():
+    try:
+        token = get_access_token()
+        if not token:
+            raise HTTPException(status_code=400, detail="Invalid access token")
+
+        headers = {
+            "Authorization": f"Bearer {token}",
+            "Accept": "application/json",
+            "OData-MaxVersion": "4.0",
+            "OData-Version": "4.0",
+        }
+
+        # Endpoint para buscar tipos de atividade
+        url = f"{DYNAMICS_URL}/api/data/v9.2/cr6ca_activitytypes?$select=cr6ca_name,cr6ca_activitytypeid"
+
+        response = requests.get(url, headers=headers)
+
+        if response.status_code == 200:
+            items = response.json().get("value", [])
+            return [
+                {"name": item["cr6ca_name"], "id": item["cr6ca_activitytypeid"]}
+                for item in items if "cr6ca_name" in item and "cr6ca_activitytypeid" in item
+            ]
+        else:
+            raise HTTPException(status_code=response.status_code, detail=response.text)
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
+    
+#####################
+# GET PROJECTS LIST #
+#####################
+@app.get("/get-project-options")
+async def get_project_options():
+    try:
+        token = get_access_token()
+        if not token:
+            raise HTTPException(status_code=400, detail="Invalid access token")
+
+        headers = {
+            "Authorization": f"Bearer {token}",
+            "Accept": "application/json",
+            "OData-MaxVersion": "4.0",
+            "OData-Version": "4.0",
+        }
+
+        # Endpoint para buscar projetos
+        url = f"{DYNAMICS_URL}/api/data/v9.2/cr6ca_projects?$select=cr6ca_name,cr6ca_projectid"
+
+        response = requests.get(url, headers=headers)
+
+        if response.status_code == 200:
+            items = response.json().get("value", [])
+            return [
+                {"name": item["cr6ca_name"], "id": item["cr6ca_projectid"]}
+                for item in items if "cr6ca_name" in item and "cr6ca_projectid" in item
+            ]
+        else:
+            raise HTTPException(status_code=response.status_code, detail=response.text)
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
+    
+#########################
+# GET PROJECT TYPE LIST #
+#########################
+@app.get("/get-projecttype-options")
+async def get_projecttype_options():
+    try:
+        token = get_access_token()
+        if not token:
+            raise HTTPException(status_code=400, detail="Invalid access token")
+
+        headers = {
+            "Authorization": f"Bearer {token}",
+            "Accept": "application/json",
+            "OData-MaxVersion": "4.0",
+            "OData-Version": "4.0",
+        }
+
+        # Endpoint para buscar tipos de projeto
+        url = f"{DYNAMICS_URL}/api/data/v9.2/cr6ca_projecttypes?$select=cr6ca_name,cr6ca_projecttypeid"
+
+        response = requests.get(url, headers=headers)
+
+        if response.status_code == 200:
+            items = response.json().get("value", [])
+            return [
+                {"name": item["cr6ca_name"], "id": item["cr6ca_projecttypeid"]}
+                for item in items if "cr6ca_name" in item and "cr6ca_projecttypeid" in item
+            ]
+        else:
+            raise HTTPException(status_code=response.status_code, detail=response.text)
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
+ 
+#################
+# GET TASK LIST #
+#################    
+@app.get("/get-task-options")
+async def get_task_options():
+    try:
+        token = get_access_token()
+        if not token:
+            raise HTTPException(status_code=400, detail="Invalid access token")
+
+        headers = {
+            "Authorization": f"Bearer {token}",
+            "Accept": "application/json",
+            "OData-MaxVersion": "4.0",
+            "OData-Version": "4.0",
+        }
+
+        # Busca tarefas (campo subject e activityid)
+        url = f"{DYNAMICS_URL}/api/data/v9.2/tasks?$select=subject,activityid"
+
+        response = requests.get(url, headers=headers)
+
+        if response.status_code == 200:
+            items = response.json().get("value", [])
+            return [
+                {"name": item["subject"], "id": item["activityid"]}
+                for item in items if "subject" in item and "activityid" in item
+            ]
+        else:
+            raise HTTPException(status_code=response.status_code, detail=response.text)
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
+    
+######################
+# GET TIME TYPE LIST #
+######################
+@app.get("/get-timetype-options")
+async def get_timetype_options():
+    try:
+        token = get_access_token()
+        if not token:
+            raise HTTPException(status_code=400, detail="Invalid access token")
+
+        headers = {
+            "Authorization": f"Bearer {token}",
+            "Accept": "application/json",
+            "OData-MaxVersion": "4.0",
+            "OData-Version": "4.0",
+        }
+
+        # Endpoint para buscar tipos de tempo
+        url = f"{DYNAMICS_URL}/api/data/v9.2/cr6ca_timetypes?$select=cr6ca_name,cr6ca_timetypeid"
+
+        response = requests.get(url, headers=headers)
+
+        if response.status_code == 200:
+            items = response.json().get("value", [])
+            return [
+                {"name": item["cr6ca_name"], "id": item["cr6ca_timetypeid"]}
+                for item in items if "cr6ca_name" in item and "cr6ca_timetypeid" in item
+            ]
+        else:
+            raise HTTPException(status_code=response.status_code, detail=response.text)
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
+
+######################
+# CREATE TIME REPORT #
+######################
+class TimeReportInput(BaseModel):
+    cr6ca_activitytypeid: str
+    accountid: str
+    cr6ca_comment: str
+    cr6ca_employeeid: str
+    cr6ca_hoursworked: float
+    cr6ca_projectid: str
+    cr6ca_projecttypeid: str
+    activityid: str
+    cr6ca_timetypeid: str
+    cr6ca_reportstatus: Optional[int] = 313330000
+  
+logging.basicConfig(level=logging.DEBUG)
+
+@app.post("/create-timereport")
+async def create_timereport(input: TimeReportInput):
+    try:
+        logging.debug(f"Dados recebidos: {input}")
+        
+        token = get_access_token()
+        if not token:
+            raise HTTPException(status_code=400, detail="Invalid access token")
+        logging.debug(f"Token de acesso: {token}")
+
+        headers = {
+            "Authorization": f"Bearer {token}",
+            "Accept": "application/json",
+            "Content-Type": "application/json",
+        }
+
+        url = f"{DYNAMICS_URL}/api/data/v9.2/cr6ca_timereports"
+        logging.debug(f"URL de requisição: {url}")
+
+        # Dados a serem enviados para o Dynamics
+        data = {
+            "cr6ca_ActivityTypeID@odata.bind": f"/cr6ca_activitytypes({input.cr6ca_activitytypeid})",  # Atividade
+            "cr6ca_AccountID@odata.bind": f"/accounts({input.accountid})",  # Conta
+            "cr6ca_comment": input.cr6ca_comment,  # Comentário
+            "cr6ca_EmployeeID@odata.bind": f"/cr6ca_employees({input.cr6ca_employeeid})",  # Funcionário
+            "cr6ca_hoursworked": input.cr6ca_hoursworked,  # Horas trabalhadas
+            "cr6ca_ProjectID@odata.bind": f"/cr6ca_projects({input.cr6ca_projectid})",  # Projeto
+            "cr6ca_ProjectTypeID@odata.bind": f"/cr6ca_projecttypes({input.cr6ca_projecttypeid})",  # Tipo de projeto
+            "cr6ca_TaskID@odata.bind": f"/tasks({input.activityid})",  # Tarefa
+            "cr6ca_TimeTypeID@odata.bind": f"/cr6ca_timetypes({input.cr6ca_timetypeid})",  # Tipo de tempo
+            "cr6ca_reportstatus": input.cr6ca_reportstatus
+        }
+
+        logging.debug(f"Dados a enviar para o Dynamics: {data}")
+
+        response = requests.post(url, headers=headers, json=data)
+
+        if response.status_code in [201,201,204]:
+            return {"status": "success", "message": "Timereport created successfully"}
+        else:
+            logging.error(f"Erro na requisição para o Dynamics: {response.status_code} - {response.text}")
+            raise HTTPException(status_code=response.status_code, detail=response.text)
+
+    except Exception as e:
+        logging.error(f"Erro no servidor: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
+ 
+ 
+###################
+# GET TIME REPORT #
+###################     
+@app.get("/get-user-timereports")
+async def get_user_timeline(employee_id: Optional[str] = None, createdon: Optional[str] = None):
+    try:
+        token = get_access_token()
+        if not token:
+            raise HTTPException(status_code=400, detail="Invalid access token")
+
+        headers = {
+            "Authorization": f"Bearer {token}",
+            "Accept": "application/json",
+            "Content-Type": "application/json",
+            "Prefer": "odata.include-annotations=*"
+        }
+
+        base_url = f"{DYNAMICS_URL}/api/data/v9.2/cr6ca_timereports"
+        select = (
+            "$select=cr6ca_comment,cr6ca_hoursworked,createdon,cr6ca_reportstatus"
+        )
+        expand = (
+            "$expand="
+            "cr6ca_AccountID($select=name),"
+            "cr6ca_ActivityTypeID($select=cr6ca_name),"
+            "cr6ca_EmployeeID($select=cr6ca_name),"
+            "cr6ca_ProjectID($select=cr6ca_name),"
+            "cr6ca_ProjectTypeID($select=cr6ca_name),"
+            "cr6ca_TaskID($select=subject),"
+            "cr6ca_TimeTypeID($select=cr6ca_name)"
+        )
+
+        # Se o `employee_id` for fornecido, filtra por ele
+        if employee_id:
+            filter_clause = f"$filter=cr6ca_EmployeeID/cr6ca_employeeid eq {employee_id}"
+            url = f"{base_url}?{select}&{filter_clause}&{expand}"
+
+        else:
+            # Se não tiver filtro, vai retornar todos os relatórios
+            url = f"{base_url}?{select}&$orderby=createdon desc&{expand}"
+
+        # Se `createdon` for passado, pode-se adicionar o filtro para a data
+        if createdon:
+            url += f"&$filter=createdon ge {createdon}"
+
+        response = requests.get(url, headers=headers)
+
+        if response.status_code == 200:
+            return JSONResponse(content=response.json())
+        else:
+            logging.error(f"Erro ao buscar timereports: {response.status_code} - {response.text}")
+            raise HTTPException(status_code=response.status_code, detail=response.text)
+
+    except Exception as e:
+        logging.error(f"Erro interno: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
+
+#######################
+# UPDATE TIME REPORT #
+#######################
+@app.patch("/update-timereport/{cr6ca_timereportid}")
+async def update_timereport(cr6ca_timereportid: str, input: TimeReportInput):
+    try:
+        logging.debug(f"Dados recebidos para atualização: {input}")
+        
+        token = get_access_token()
+        if not token:
+            raise HTTPException(status_code=400, detail="Invalid access token")
+        logging.debug(f"Token de acesso: {token}")
+
+        headers = {
+            "Authorization": f"Bearer {token}",
+            "Accept": "application/json",
+            "Content-Type": "application/json",
+        }
+
+        # URL para atualizar o timereport específico
+        url = f"{DYNAMICS_URL}/api/data/v9.2/cr6ca_timereports({cr6ca_timereportid})"
+        logging.debug(f"URL de requisição para atualizar o relatório: {url}")
+
+        # Dados a serem atualizados
+        data = {
+            "cr6ca_ActivityTypeID@odata.bind": f"/cr6ca_activitytypes({input.cr6ca_activitytypeid})",  # Atividade
+            "cr6ca_AccountID@odata.bind": f"/accounts({input.accountid})",  # Conta
+            "cr6ca_comment": input.cr6ca_comment,  # Comentário
+            "cr6ca_EmployeeID@odata.bind": f"/cr6ca_employees({input.cr6ca_employeeid})",  # Funcionário
+            "cr6ca_hoursworked": input.cr6ca_hoursworked,  # Horas trabalhadas
+            "cr6ca_ProjectID@odata.bind": f"/cr6ca_projects({input.cr6ca_projectid})",  # Projeto
+            "cr6ca_ProjectTypeID@odata.bind": f"/cr6ca_projecttypes({input.cr6ca_projecttypeid})",  # Tipo de projeto
+            "cr6ca_TaskID@odata.bind": f"/tasks({input.activityid})",  # Tarefa
+            "cr6ca_TimeTypeID@odata.bind": f"/cr6ca_timetypes({input.cr6ca_timetypeid})",  # Tipo de tempo
+        }
+        
+        logging.debug(f"URL de requisição para atualizar o relatório: {url}")
+        logging.debug(f"Dados a enviar para o Dynamics: {data}")
+
+        # Envia a requisição para atualizar o relatório
+        response = requests.patch(url, headers=headers, json=data)
+
+        if response.status_code == 204:  # 204 indica sucesso na atualização
+            return {"status": "success", "message": "Time report updated successfully"}
+        else:
+            logging.error(f"Erro na requisição para o Dynamics: {response.status_code} - {response.text}")
+            raise HTTPException(status_code=response.status_code, detail=response.text)
+
+    except Exception as e:
+        logging.error(f"Erro no servidor: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
+
+  
+######################
+# DELETE TIME REPORT #
+###################### 
+@app.delete("/delete-timereport/{cr6ca_timereportid}")
+async def delete_timereport(cr6ca_timereportid: str):
+    try:
+        token = get_access_token()
+        if not token:
+            raise HTTPException(status_code=400, detail="Invalid access token")
+
+        headers = {
+            "Authorization": f"Bearer {token}",
+            "Accept": "application/json",
+            "Content-Type": "application/json",
+        }
+
+        # URL do Dynamics para deletar um registro específico com o campo cr6ca_timereportid
+        url = f"{DYNAMICS_URL}/api/data/v9.2/cr6ca_timereports({cr6ca_timereportid})"
+
+        response = requests.delete(url, headers=headers)
+
+        if response.status_code == 204:
+            # 204 significa que a exclusão foi bem-sucedida e não há conteúdo na resposta
+            return {"status": "success", "message": "Time report deleted successfully"}
+        else:
+            logging.error(f"Erro ao deletar o time report: {response.status_code} - {response.text}")
+            raise HTTPException(status_code=response.status_code, detail=response.text)
+
+    except Exception as e:
+        logging.error(f"Erro interno: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")

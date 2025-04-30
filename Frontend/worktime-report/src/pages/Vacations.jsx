@@ -46,6 +46,9 @@ const Vacations = () => {
               date: new Date(h.cr6ca_holidaydate),
               name: h.cr6ca_description
             }));
+
+            formatted.sort((a, b) => a.date - b.date);
+
             setHolidays(formatted);
           } catch (error) {
             console.error("Erro ao buscar feriados:", error);
@@ -91,9 +94,20 @@ const Vacations = () => {
     }
 
     // Cálculo de dias solicitados
-    let requestedDays = (end - start) / (1000 * 60 * 60 * 24) + 1;
+    let requestedDays = 0;
+    const current = new Date(start);
 
-    if (halfDay === 0.5) {
+    while (current <= end) {
+      const dayOfWeek = current.getDay(); // 0 = Domingo, 6 = Sábado
+      
+      if (dayOfWeek !== 0 && dayOfWeek !== 6 && !isHoliday(current)) {
+        requestedDays++;
+      }
+  
+      current.setDate(current.getDate() + 1);
+    }
+
+    if (halfDay === 0.5 && start.toDateString() === end.toDateString()) {
       requestedDays = 0.5;
     }
 
@@ -148,7 +162,10 @@ const Vacations = () => {
 
   // Renderiza os feriados no modal
   const renderHolidayList = () => {
-    return holidays.map((holiday, index) => (
+
+    const sortedHolidays = [...holidays].sort((a, b) => a.date - b.date);
+
+    return sortedHolidays.map((holiday, index) => (
       <div key={index} className="holiday_item">
         <p><strong>{holiday.name}</strong> - {holiday.date.toLocaleDateString()}</p>
       </div>
@@ -188,7 +205,7 @@ const Vacations = () => {
               required
             /> 
             <FaCalendarAlt
-              title="Holidays"
+              title="Public Holidays"
               className="holiday_icon"
               onClick={toggleHolidayModal}
             />
@@ -197,11 +214,10 @@ const Vacations = () => {
             <div className="holiday_warning">This is a holiday!</div>
           )}
 
-          {/* Modal com os feriados */}
           {isHolidayModalOpen && (
             <div className="holiday_modal">
               <div className="holiday_modal_content">
-                <h3>Public Holidays</h3>
+                <h2 style={{ color: 'aqua' }}>Public Holidays</h2>
                 {renderHolidayList()}
                 <button className="close_modal" onClick={toggleHolidayModal}>Close</button>
               </div>

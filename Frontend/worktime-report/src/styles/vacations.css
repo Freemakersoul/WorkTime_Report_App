@@ -8,7 +8,6 @@
 }
 
 .vacations_left_section {
-  margin-top: 8vh;
   flex:1;
   display: flex;
   flex-direction: column;
@@ -22,7 +21,6 @@
 }
 
 .vacations_right_section {
-  margin-top: 8vh;
   flex:1;
   display: flex;
   flex-direction: column;
@@ -114,8 +112,17 @@
   align-self:start;
 }
 
+.holiday_icon:hover {
+  color: rgb(3, 209, 209);
+}
+
+.holiday_info {
+  display:flex;
+  flex-direction:row;
+}
+
 .holiday_warning {
-  color: red;
+  color: rgb(255, 73, 1);
   font-size: 2vh;
   margin-bottom: 3vh;
 }
@@ -143,9 +150,13 @@
   width: 70%;
   margin-top: 3vh;
   font-weight: bold;
-  background-color: green;
+  background-color: rgb(3, 154, 3);
   color: whitesmoke;
   cursor:pointer;
+}
+
+.submit_button:hover {
+  background-color: green;
 }
 
 .vacation_request_status {

@@ -5,21 +5,130 @@ import axios from 'axios';
 
 const Management = () => {
 
+  // CONSTS FOR USER MANAGEMENT
   const [users, setUsers] = useState([]);
-  const [viewMode, setViewMode] = useState('list');
+  const [userViewMode, setUserViewMode] = useState('list');
   const [selectedUser, setSelectedUser] = useState(null);
   const [userName, setUserName] = useState('');
   const [userEmail, setUserEmail] = useState('');
   const [userPassword, setUserPassword] = useState('');
   const [selectedUserType, setSelectedUserType] = useState('');
   const [profilePhotoUrl, setProfilePhotoUrl] = useState('');
+
+  // CONSTS FOR LEAVES MANAGEMENT
   const [leaves, setLeaves] = useState([]);
   const [holidays, setHolidays] = useState([]);
+
+  // CONSTS FOR REPORTS MANAGEMENT
+  const [reportViewMode, setReportViewMode] = useState('list');
+  const [reports, setReports] = useState([]);
+  const [selectedReport, setSelectedReport] = useState(null);
+  const [editedComment, setEditedComment] = useState('');
+  const [editedHours, setEditedHours] = useState('');
+  const [editedActivityType, setEditedActivityType] = useState('');
+  const [editedAccount, setEditedAccount] = useState('');
+  const [editedProject, setEditedProject] = useState('');
+  const [editedProjectType, setEditedProjectType] = useState('');
+  const [editedTask, setEditedTask] = useState('');
+  const [editedTimeType, setEditedTimeType] = useState('');
   const userType = [
     { value: 313330000, label: "User" },
     { value: 313330001, label: "Admin" },
   ];
 
+  // USER MANAGEMENT
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+  
+    if (!selectedUser) {
+      alert("No user selected.");
+      return;
+    }
+  
+    const formData = new FormData();
+    formData.append("name", userName);
+    formData.append("email", userEmail);
+    if (userPassword) {
+      formData.append("password", userPassword);
+    }
+    formData.append("usertype", selectedUserType);
+    
+    // Converter a imagem (se estiver em base64)
+    if (profilePhotoUrl && profilePhotoUrl.startsWith("data:image")) {
+      const blob = await (await fetch(profilePhotoUrl)).blob();
+      formData.append("file", blob, "profile.png");
+    }
+  
+    try {
+      const response = await axios.patch(
+        `http://localhost:8000/update-user/${selectedUser.id}`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+  
+      alert("User successfully updated!");
+      // Atualiza a lista de users com o novo nome/email/etc.
+      setUsers((prevUsers) =>
+        prevUsers.map((user) =>
+          user.id === selectedUser.id
+            ? { ...user, name: userName, email: userEmail, usertype: selectedUserType, photo_url: response.data.photo_url }
+            : user
+        )
+      );
+      setUserViewMode("list");
+    } catch (error) {
+      console.error("Error updating user:", error);
+      alert("Error while updating user.");
+    }
+  };
+
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setProfilePhotoUrl(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const getUserTypeLabel = (type) => {
+    switch (type) {
+      case 313330000: return "User";
+      case 313330001: return "Admin";
+      default: return "Desconhecido";
+    }
+  };
+
+  const handleEdit = (user) => {
+    setSelectedUser(user);
+    setUserName(user.name);
+    setUserEmail(user.email);
+    setUserPassword(user.password || '');
+    setSelectedUserType(user.usertype || '');
+    setProfilePhotoUrl(user.photo_url || '');
+    setUserViewMode('profile');
+  };
+
+  const handleDelete = async (userId) => {
+    if (window.confirm("Are you sure you want to delete this user? This action cannot be undone.")) {
+      try {
+        await axios.delete(`http://localhost:8000/delete-user/${userId}`);
+        setUsers(prevUsers => prevUsers.filter(user => user.id !== userId));
+        alert("User sucessfully delete!");
+      } catch (error) {
+        console.error("Error deleting user:", error);
+        alert("Error while deleting user.");
+      }
+    }
+  };
+
+  // LEAVES MANAGEMENT
   const handleApprove = async (leaveId) => {
     try {
       await axios.patch(`http://localhost:8000/update-vacation-status/${leaveId}`, {
@@ -96,11 +205,15 @@ const Management = () => {
         <Calendar
           onChange={setDate}
           value={date}
-          tileClassName={({ date }) => {
-            if (isHoliday(date)) return 'holiday';
-            if (isLeaveDay(date)) return 'leave-day';
-            if (date.getDay() === 0 || date.getDay() === 6) return 'weekend';
-            return null;  // Se não for nenhum dos casos, não altera a célula
+          tileClassName={({ date, view }) => {
+            if (view !== 'month') return null;
+            const classes = [];
+
+            if (isHoliday(date)) classes.push('holiday');
+            if (isLeaveDay(date)) classes.push('leave-day');
+            if (date.getDay() === 0 || date.getDay() === 6) classes.push('weekend');
+            
+            return classes.join(' ') || null;
           }}
           tileContent={({ date }) => {
             const leave = leaves.find(l => date >= new Date(l.start) && date <= new Date(l.end));
@@ -130,91 +243,91 @@ const Management = () => {
       </div>
     );
   };
-
-  const handleEdit = (user) => {
-    setSelectedUser(user);
-    setUserName(user.name);
-    setUserEmail(user.email);
-    setUserPassword(user.password || '');
-    setSelectedUserType(user.usertype || '');
-    setProfilePhotoUrl(user.photo_url || '');
-    setViewMode('profile');
-  };
-
-  const handleDelete = async (userId) => {
-    if (window.confirm("Are you sure you want to delete this user? This action cannot be undone.")) {
-      try {
-        await axios.delete(`http://localhost:8000/delete-user/${userId}`);
-        setUsers(prevUsers => prevUsers.filter(user => user.id !== userId));
-        alert("User sucessfully delete!");
-      } catch (error) {
-        console.error("Error deleting user:", error);
-        alert("Error while deleting user.");
-      }
-    }
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
   
-    if (!selectedUser) {
-      alert("No user selected.");
+  // REPORTS MANAGEMENT
+  const handleEditReport = (report) => {
+    console.log("EDITING REPORT:", report);
+    setSelectedReport(report);
+    setEditedComment(report.cr6ca_comment || '');
+    setEditedHours(report.cr6ca_hoursworked || '');
+    setEditedAccount(report.cr6ca_AccountID?.accountid || '');
+    setEditedActivityType(report.cr6ca_ActivityTypeID?.cr6ca_activitytypeid || '');
+    setEditedProject(report.cr6ca_ProjectID?.cr6ca_projectid || '');
+    setEditedProjectType(report.cr6ca_ProjectTypeID?.cr6ca_projecttypeid || '');
+    setEditedTask(report.cr6ca_TaskID?.activityid || '');
+    setEditedTimeType(report.cr6ca_TimeTypeID?.cr6ca_timetypeid || '');
+    setReportViewMode('edit-report');
+  };
+
+  const handleEditReportSubmit = async (e) => {
+    e.preventDefault();
+
+    console.log('selectedReport:', selectedReport);
+
+
+    const employeeId = selectedReport.cr6ca_EmployeeID.cr6ca_employeeid;
+
+    console.log({
+      editedAccount,
+      editedActivityType,
+      editedProject,
+      editedProjectType,
+      editedTask,
+      editedTimeType,
+      employeeId, // Certifique-se de passar o id do funcionário aqui
+      editedHours,
+      editedComment
+  });
+
+    // Verifique se algum valor está undefined ou null
+    if (!editedAccount || !editedActivityType || !editedProject || !editedProjectType || !editedTask || !editedTimeType) {
+      alert('Todos os campos obrigatórios devem ser preenchidos!');
       return;
     }
-  
-    const formData = new FormData();
-    formData.append("name", userName);
-    formData.append("email", userEmail);
-    if (userPassword) {
-      formData.append("password", userPassword);
-    }
-    formData.append("usertype", selectedUserType);
     
-    // Converter a imagem (se estiver em base64)
-    if (profilePhotoUrl && profilePhotoUrl.startsWith("data:image")) {
-      const blob = await (await fetch(profilePhotoUrl)).blob();
-      formData.append("file", blob, "profile.png");
-    }
-  
     try {
-      const response = await axios.patch(
-        `http://localhost:8000/update-user/${selectedUser.id}`,
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
+      await axios.patch(`http://localhost:8000/update-timereport/${selectedReport.cr6ca_timereportid}`, {
+        "cr6ca_AccountID@odata.bind": `/accounts(${editedAccount})`,
+        "cr6ca_ActivityTypeID@odata.bind": `/cr6ca_activitytypes(${editedActivityType})`,
+        "cr6ca_ProjectID@odata.bind": `/cr6ca_projects(${editedProject})`,
+        "cr6ca_ProjectTypeID@odata.bind": `/cr6ca_projecttypes(${editedProjectType})`,
+        "cr6ca_TaskID@odata.bind": `/tasks(${editedTask})`,
+        "cr6ca_TimeTypeID@odata.bind": `/cr6ca_timetypes(${editedTimeType})`,
+        "cr6ca_EmployeeID@odata.bind": `/cr6ca_employees(${employeeId})`,
+        "cr6ca_hoursworked": editedHours,
+        "cr6ca_comment": editedComment
+      });
   
-      alert("User successfully updated!");
-      // Atualiza a lista de users com o novo nome/email/etc.
-      setUsers((prevUsers) =>
-        prevUsers.map((user) =>
-          user.id === selectedUser.id
-            ? { ...user, name: userName, email: userEmail, usertype: selectedUserType, photo_url: response.data.photo_url }
-            : user
+      // Atualiza a lista de relatórios com as alterações
+      setReports(prevReports => 
+        prevReports.map(report => 
+            report.cr6ca_timereportid === selectedReport.cr6ca_timereportid 
+                ? { 
+                    ...report, 
+                    cr6ca_comment: editedComment, 
+                    cr6ca_hoursworked: editedHours, 
+                    cr6ca_ActivityTypeID: editedActivityType,
+                    cr6ca_AccountID: editedAccount,
+                    cr6ca_ProjectTypeID: editedProjectType,
+                    cr6ca_ProjectID: editedProject,
+                    cr6ca_TaskID: editedTask,
+                    cr6ca_TimeTypeID: editedTimeType,
+                }
+                : report
         )
       );
-      setViewMode("list");
+      
+      setReportViewMode('list');
+      alert("Report successfully updated!");
     } catch (error) {
-      console.error("Error updating user:", error);
-      alert("Error while updating user.");
+      console.error("Error updating report:", error.response ? error.response.data : error.message);
+      alert("Failed to update the report.");
     }
   };
 
-  const handleFileChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setProfilePhotoUrl(reader.result);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
+  // USEEFFECTS FOR USERS, LEAVES, HOLIDAYS AND REPORTS
   useEffect(() => {
+
     const fetchUsers = async () => {
       try {
         const response = await axios.get("http://localhost:8000/get-all-users");
@@ -260,24 +373,28 @@ const Management = () => {
         console.error("Erro ao buscar feriados:", error);
       }
     };
-    
+
+    const fetchReports = async () => {
+      try {
+        const response = await axios.get('http://localhost:8000/get-user-timereports');
+        console.log(response.data);
+        setReports(response.data.value); 
+      } catch (error) {
+        console.error("Erro ao buscar relatórios:", error);
+      }
+    };
+  
+    fetchReports();
     fetchHolidays();
     fetchUsers();
     fetchLeaves();
   }, []);
 
-  const getUserTypeLabel = (type) => {
-    switch (type) {
-      case 313330000: return "User";
-      case 313330001: return "Admin";
-      default: return "Desconhecido";
-    }
-  };
-
   return (
     <div className="management_content">
+      {/* USERS MANAGEMENT */}
       <div className="management_left_section">
-        {viewMode === 'list' ? (
+        {userViewMode === 'list' ? (
           <>
             <h1 className="main_title">Users Management</h1> 
             <div className="users_list_table">
@@ -373,7 +490,7 @@ const Management = () => {
                 <button
                   className="cancel_button"
                   type="button"
-                  onClick={() => setViewMode('list')}
+                  onClick={() => setUserViewMode('list')}
                 >
                   Cancel
                 </button>
@@ -384,7 +501,8 @@ const Management = () => {
       </div>
 
       <div className="divider_left"></div>
-
+        
+      {/* LEAVES MANAGEMENT */}
       <div className="management_middle_section">
         <h1 className="main_title"> Leave Management</h1>
         <div>
@@ -406,7 +524,7 @@ const Management = () => {
                   <td>{new Date(leave.end).toLocaleDateString()}</td>
                   <td>{leave.halfDay === 1 ? "Yes" : "No"}</td>
                   <td>
-                    {leave.status === 313330000 && ( // 313330000 = Pendente
+                    {leave.status === 313330000 && ( 
                       <>
                         <button className="approve_button" onClick={() => handleApprove(leave.id)}>✅</button>
                         <button className="reject_button" onClick={() => handleReject(leave.id)}>❌</button>
@@ -427,24 +545,118 @@ const Management = () => {
 
       <div className="divider_right"></div>
 
+      {/* REPORTS MANAGEMENT */}
       <div className="management_right_section">
         <h1 className="main_title">Reports Management</h1>
         <div className="reports_container">
-          {/* Exemplo estático de relatório - substituir por dados do banco */}
-          <div className="report_card">
-            <h3>Report #1</h3>
-            <p><strong>Autor:</strong> João Silva</p>
-            <p><strong>Data:</strong> 2025-04-21</p>
-            <p><strong>Conteúdo:</strong> Relatório sobre o desempenho semanal da equipe A. Foram cumpridos 95% das metas.</p>
-            
-            <div className="report_actions">
-              <button className="report_button analyze">🔍 Analisar</button>
-              <button className="report_button correct">✏️ Corrigir</button>
-              <button className="report_button approve">✅ Aprovar</button>
-            </div>
-          </div>
+          <table className="reports_table">
+            <thead>
+              <tr>
+                <th>User</th>
+                <th>Date</th>
+                <th>Hours worked</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+            {reports.length > 0 ? (
+                reports.map((report) => (
+                  <tr key={report.cr6ca_timereportid}>
+                    <td>{report.cr6ca_EmployeeID?.cr6ca_name || "—"}</td>
+                    <td>{new Date(report.createdon).toLocaleDateString()}</td>
+                    <td>{report.cr6ca_hoursworked}</td>
+                    <td>
 
-          {/* Outros relatórios podem seguir este formato dinamicamente */}
+                      <button className="analyze_button" title="Analyze">🔍</button>
+                      <button className="report_edit_button" title="Edit" onClick={() => handleEditReport(report)}>✏️</button>
+                      {parseInt(report.cr6ca_reportstatus) === 313330000 && ( // Status pendente
+                        <>
+                          <button className="approve_button" title="Approve">✅</button>
+                          <button className="reject_button" title="Reject">❌</button>
+                        </>
+                      )}
+                      {report.status === 313330001 && <span className="status_approved">✅</span>} {/* Aprovado */}
+                      {report.status === 313330002 && <span className="status_rejected">❌</span>} {/* Rejeitado */}
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="5">Nenhum relatório disponível.</td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+          {reportViewMode === 'edit-report' && selectedReport && (
+            <div className="edit-report-form">
+              <h2>Edit Report</h2>
+              <form onSubmit={handleEditReportSubmit}>
+
+                <label>Client:</label>
+                <input
+                  type="text"
+                  value={editedAccount}
+                  onChange={(e) => setEditedAccount(e.target.value)}
+                />
+
+                <label>Activity Type:</label>
+                <input
+                  type="text"
+                  value={editedActivityType}
+                  onChange={(e) => setEditedActivityType(e.target.value)}
+                />
+
+                <label>Project:</label>
+                <input
+                  type="text"
+                  value={editedProject}
+                  onChange={(e) => setEditedProject(e.target.value)}
+                />  
+
+                <label>Project type:</label>
+                <input
+                  type="text"
+                  value={editedProjectType}
+                  onChange={(e) => setEditedProjectType(e.target.value)}
+                />
+
+                <label>Task:</label>
+                <input
+                  type="text"
+                  value={editedTask}
+                  onChange={(e) => setEditedTask(e.target.value)}
+                />
+
+                <label>Time Type:</label>
+                <input
+                  type="text"
+                  value={editedTimeType}
+                  onChange={(e) => setEditedTimeType(e.target.value)}
+                />
+
+                <label>Hours Worked:</label>
+                <input
+                  type="number"
+                  value={editedHours}
+                  onChange={(e) => setEditedHours(e.target.value)}
+                />
+
+                <label>Comment:</label>
+                <input
+                  type="text"
+                  value={editedComment}
+                  onChange={(e) => setEditedComment(e.target.value)}
+                />
+
+                <div className="form-actions">
+                  <button type="submit">Save Changes</button>
+                  <button type="button" onClick={() => setReportViewMode('list')}>
+                    Cancel
+                  </button>
+                </div>
+              </form>
+            </div>
+          )}
         </div>
       </div>
     </div>

@@ -15,20 +15,19 @@ html, body {
   overflow: hidden;
 }
 
-.management_left_section {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  flex: 1;
-}
-
 .main_title {
-  margin-top: 0vh;
+  margin-top: 6vh;
   background-color: darkslategrey;
   padding: 1vh 2vh;
   border-radius: 2vh;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.management_left_section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
 }
 
 .users_list_table {
@@ -123,9 +122,8 @@ html, body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: start;
   flex: 1;
-  padding: 7vh 0vw;
+  
 }
 
 .leave_table {
@@ -148,6 +146,10 @@ html, body {
   text-align: center;
   margin-bottom: 0.5vh;  /* Margem entre as linhas */
   overflow: hidden;
+}
+
+.leave_table td {
+  font-size: 0.9rem;
 }
 
 .leave_table th {
@@ -227,11 +229,22 @@ html, body {
   border-radius: 8px;
 }
 
+/* Cor diferente para os fins de semana */
+.react-calendar__tile.weekend {
+  background-color: #0fbe87; /* cor diferente (exemplo) */
+  color: whitesmoke; /* cor do texto no fim de semana (exemplo) */
+  border-radius: 0.4vh;
+}
 
+/* Opcional: Hover bonito */
+.react-calendar__tile.weekend:hover {
+  background-color: #3c3c5b;
+}
 
-.custom-marker {
-  font-size: 0.8rem;
-  color: #ffd700;
+.leave-holiday-icons {
+  display: flex;
+  justify-content: center; 
+  gap: 0.1vw; 
 }
 
 /**/
@@ -239,12 +252,80 @@ html, body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
   flex: 1;
+  overflow: auto;
 }
 
-.leave-holiday-icons {
-  display: flex;
-  justify-content: center; 
-  gap: 0.1vw; 
+.reports_table {
+  width: 22vw;  
+  max-height: 55vh;  
+  overflow-y: auto;   
+  margin-top: 2vh;
+  border:none;
+  border-radius: 2vh;
+  display: block;  /* Permite o scroll apenas na altura */
+  margin-bottom: 2vh; /* Espaço abaixo da tabela */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.reports_table th, .reports_table td {
+  text-align: center;
+  padding: 0.2vh 0.6vh; 
+  background-color: darkslategrey;
+  text-align: center;
+  margin-bottom: 0.5vh;  /* Margem entre as linhas */
+  overflow: hidden;
+}
+
+.reports_table td {
+  font-size: 0.9rem;
+}
+
+.reports_table th {
+  background-color: rgb(32, 31, 31);  /* Cor de fundo para os cabeçalhos */
+  color: whitesmoke;  /* Cor do texto dos cabeçalhos */
+  font-size: 0.7rem;  /* Diminui o tamanho da fonte nos cabeçalhos */
+  padding-top: 1vh;  /* Padding superior para os cabeçalhos */
+  padding-bottom: 1vh;  /* Padding inferior para os cabeçalhos */
+  position: sticky;  /* Cabeçalhos fixos */
+  top: 0;  /* Fixação no topo */
+  z-index: 1;
+}
+
+.reports_table::-webkit-scrollbar {
+  width: 6px; /* largura da scrollbar */
+}
+
+.reports_table::-webkit-scrollbar-track {
+  background: transparent; /* fundo da barra */
+  border-radius: 10px;
+}
+
+.reports_table::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0.3); /* cor da thumb */
+  border-radius: 10px; 
+  border: 1px solid transparent;
+  background-clip: content-box;
+}
+
+.analyze_button {
+  width: 50%; 
+  border: none;
+  background-color: lightblue;
+  cursor: pointer;
+}
+
+.analyze_button:hover {
+  background-color: rgb(144, 182, 195);
+}
+
+.report_edit_button {
+  width: 50%; 
+  border: none;
+  background-color: rgb(239, 239, 10);
+  cursor: pointer;
+}
+
+.report_edit_button:hover {
+  background-color: rgb(200, 200, 58);
 }

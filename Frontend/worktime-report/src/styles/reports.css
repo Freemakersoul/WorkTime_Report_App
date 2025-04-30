@@ -1,0 +1,32 @@
+.reports_content {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  box-sizing: border-box;
+}
+
+.reports_left_section {
+  margin-top: 8vh;
+  flex:1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.reports_middle_section {
+  margin-top: 8vh;
+  flex:1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.reports_right_section {
+  margin-top: 8vh;
+  flex:1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
