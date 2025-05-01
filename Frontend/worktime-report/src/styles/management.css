@@ -128,13 +128,13 @@ html, body {
 
 .leave_table {
   width: 22vw;  
-  max-height: 18vh; 
+  max-height: 22vh; 
   overflow-y: auto;  
   margin-top: 2vh;
   border:none;
   border-radius: 2vh;
   display: block;  
-  margin-bottom: 2vh; 
+  margin-bottom: 0vh; 
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
   overflow-y: auto;
 }
@@ -210,7 +210,7 @@ html, body {
 }
 
 .react-calendar {
-  margin-top: 3vh;
+  margin-top: 2vh;
   background: #1e1e2f;
   border: none;
   border-radius: 12px;
@@ -328,4 +328,14 @@ html, body {
 
 .report_edit_button:hover {
   background-color: rgb(200, 200, 58);
+}
+
+.status_approved {
+  color: #28a745; /* verde */
+  font-weight: bold;
+}
+
+.status_rejected {
+  color: #dc3545; /* vermelho */
+  font-weight: bold;
 }

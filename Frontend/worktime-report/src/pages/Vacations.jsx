@@ -259,7 +259,6 @@ const Vacations = () => {
           <div>
             <h3 className="vacation_request_status">Last request state:</h3>
             <div>
-              Request status – 
               <span
                 className={
                   currentVacationStatus === 313330002

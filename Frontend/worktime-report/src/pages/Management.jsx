@@ -20,17 +20,25 @@ const Management = () => {
   const [holidays, setHolidays] = useState([]);
 
   // CONSTS FOR REPORTS MANAGEMENT
+  const [accounts, setAccounts] = useState([]);
+  const [activityTypes, setActivityTypes] = useState([]);
+  const [projects, setProjects] = useState([]);
+  const [projectTypes, setProjectTypes] = useState([]);
+  const [tasks, setTasks] = useState([]);
+  const [timeTypes, setTimeTypes] = useState([]);
   const [reportViewMode, setReportViewMode] = useState('list');
   const [reports, setReports] = useState([]);
   const [selectedReport, setSelectedReport] = useState(null);
   const [editedComment, setEditedComment] = useState('');
   const [editedHours, setEditedHours] = useState('');
+  const [editedReportStatus, setEditedReportStatus] = useState (313330000)
   const [editedActivityType, setEditedActivityType] = useState('');
   const [editedAccount, setEditedAccount] = useState('');
   const [editedProject, setEditedProject] = useState('');
   const [editedProjectType, setEditedProjectType] = useState('');
   const [editedTask, setEditedTask] = useState('');
   const [editedTimeType, setEditedTimeType] = useState('');
+  const [analyzedReport, setAnalyzedReport] = useState(null);
   const userType = [
     { value: 313330000, label: "User" },
     { value: 313330001, label: "Admin" },
@@ -205,6 +213,7 @@ const Management = () => {
         <Calendar
           onChange={setDate}
           value={date}
+          locale="en-US"
           tileClassName={({ date, view }) => {
             if (view !== 'month') return null;
             const classes = [];
@@ -245,10 +254,32 @@ const Management = () => {
   };
   
   // REPORTS MANAGEMENT
+  const handleStatusUpdate = async (reportId, newStatus) => {
+    try {
+      await axios.patch(`http://localhost:8000/update-reportstatus/${reportId}`, {
+        cr6ca_reportstatus: newStatus,
+      });
+  
+      // Atualiza o estado local
+      setReports(prevReports =>
+        prevReports.map(report =>
+          report.cr6ca_timereportid === reportId
+            ? { ...report, cr6ca_reportstatus: newStatus }
+            : report
+        )
+      );
+  
+      alert("Status atualizado com sucesso!");
+    } catch (error) {
+      console.error("Erro ao atualizar status:", error.response?.data || error.message);
+      alert("Falha ao atualizar o status do relatório.");
+    }
+  };
+
   const handleEditReport = (report) => {
     console.log("EDITING REPORT:", report);
     setSelectedReport(report);
-    setEditedComment(report.cr6ca_comment || '');
+    setEditedComment((report.cr6ca_comment || '').trim());
     setEditedHours(report.cr6ca_hoursworked || '');
     setEditedAccount(report.cr6ca_AccountID?.accountid || '');
     setEditedActivityType(report.cr6ca_ActivityTypeID?.cr6ca_activitytypeid || '');
@@ -256,7 +287,8 @@ const Management = () => {
     setEditedProjectType(report.cr6ca_ProjectTypeID?.cr6ca_projecttypeid || '');
     setEditedTask(report.cr6ca_TaskID?.activityid || '');
     setEditedTimeType(report.cr6ca_TimeTypeID?.cr6ca_timetypeid || '');
-    setReportViewMode('edit-report');
+    setEditedReportStatus(report.cr6ca_reportstatus);
+    setReportViewMode('edit');
   };
 
   const handleEditReportSubmit = async (e) => {
@@ -287,15 +319,16 @@ const Management = () => {
     
     try {
       await axios.patch(`http://localhost:8000/update-timereport/${selectedReport.cr6ca_timereportid}`, {
-        "cr6ca_AccountID@odata.bind": `/accounts(${editedAccount})`,
-        "cr6ca_ActivityTypeID@odata.bind": `/cr6ca_activitytypes(${editedActivityType})`,
-        "cr6ca_ProjectID@odata.bind": `/cr6ca_projects(${editedProject})`,
-        "cr6ca_ProjectTypeID@odata.bind": `/cr6ca_projecttypes(${editedProjectType})`,
-        "cr6ca_TaskID@odata.bind": `/tasks(${editedTask})`,
-        "cr6ca_TimeTypeID@odata.bind": `/cr6ca_timetypes(${editedTimeType})`,
-        "cr6ca_EmployeeID@odata.bind": `/cr6ca_employees(${employeeId})`,
-        "cr6ca_hoursworked": editedHours,
-        "cr6ca_comment": editedComment
+        accountid: editedAccount,
+        cr6ca_activitytypeid: editedActivityType,
+        cr6ca_projectid: editedProject,
+        cr6ca_projecttypeid: editedProjectType,
+        activityid: editedTask,
+        cr6ca_timetypeid: editedTimeType,
+        cr6ca_employeeid: employeeId,
+        cr6ca_hoursworked: Number(editedHours),
+        cr6ca_comment: editedComment,
+        cr6ca_reportstatus: editedReportStatus,
       });
   
       // Atualiza a lista de relatórios com as alterações
@@ -383,12 +416,63 @@ const Management = () => {
         console.error("Erro ao buscar relatórios:", error);
       }
     };
-  
+
+    const fetchOptions = async () => {
+          try {
+            const [
+              accountsRes,
+              activityTypesRes,
+              projectsRes,
+              projectTypesRes,
+              tasksRes,
+              timeTypesRes
+            ] = await Promise.all([
+              axios.get("http://localhost:8000/get-account-options"),
+              axios.get("http://localhost:8000/get-activitytype-options"),
+              axios.get("http://localhost:8000/get-project-options"),
+              axios.get("http://localhost:8000/get-projecttype-options"),
+              axios.get("http://localhost:8000/get-task-options"),
+              axios.get("http://localhost:8000/get-timetype-options"),
+            ]);
+    
+            setAccounts(accountsRes.data);
+            setActivityTypes(activityTypesRes.data);
+            setProjects(projectsRes.data);
+            setProjectTypes(projectTypesRes.data);
+            setTasks(tasksRes.data);
+            setTimeTypes(timeTypesRes.data);
+          } catch (error) {
+            console.error("Erro ao buscar dados:", error);
+          } 
+      };
+
+    fetchOptions ();
     fetchReports();
     fetchHolidays();
     fetchUsers();
     fetchLeaves();
   }, []);
+
+  const statusOptions = {
+    313330000: "Pending",
+    313330001: "Approved",
+    313330002: "Rejected"
+  }
+
+  const handleViewChange = (mode) => {
+    setReportViewMode(mode);
+  };
+
+  const handleAnalyzeReport = (report) => {
+    console.log("Analisando relatório:", report);
+    handleViewChange('analyze');
+    setAnalyzedReport(report);
+  };
+
+  const handleBackToTable = () => {
+    setReportViewMode('list');
+    setSelectedReport(null);  
+  };
 
   return (
     <div className="management_content">
@@ -530,8 +614,8 @@ const Management = () => {
                         <button className="reject_button" onClick={() => handleReject(leave.id)}>❌</button>
                       </>
                     )}
-                    {leave.status === 313330001 && <span className="status_approved">✅</span>}
-                    {leave.status === 313330002 && <span className="status_rejected">❌</span>}
+                    {leave.status === 313330001 && <span className="status_approved">✅ Approved</span>}
+                    {leave.status === 313330002 && <span className="status_rejected"> ❌ Rejected</span>}
                   </td>
                 </tr>
               ))}
@@ -549,6 +633,7 @@ const Management = () => {
       <div className="management_right_section">
         <h1 className="main_title">Reports Management</h1>
         <div className="reports_container">
+        {reportViewMode === 'list' && (
           <table className="reports_table">
             <thead>
               <tr>
@@ -566,17 +651,41 @@ const Management = () => {
                     <td>{new Date(report.createdon).toLocaleDateString()}</td>
                     <td>{report.cr6ca_hoursworked}</td>
                     <td>
-
-                      <button className="analyze_button" title="Analyze">🔍</button>
-                      <button className="report_edit_button" title="Edit" onClick={() => handleEditReport(report)}>✏️</button>
-                      {parseInt(report.cr6ca_reportstatus) === 313330000 && ( // Status pendente
+                      {parseInt(report.cr6ca_reportstatus) === 313330000 ? (
                         <>
-                          <button className="approve_button" title="Approve">✅</button>
-                          <button className="reject_button" title="Reject">❌</button>
+                          <button className="analyze_button" title="Analyze" onClick={() => handleAnalyzeReport(report)}>🔍</button>
+                          <button
+                            className="report_edit_button"
+                            title="Edit"
+                            onClick={() => handleEditReport(report)}
+                          >
+                            ✏️
+                          </button>
+                          <button
+                            className="approve_button"
+                            title="Approve"
+                            onClick={() => handleStatusUpdate(report.cr6ca_timereportid, 313330001)}
+                          >
+                            ✅
+                          </button>
+                          <button
+                            className="reject_button"
+                            title="Reject"
+                            onClick={() => handleStatusUpdate(report.cr6ca_timereportid, 313330002)}
+                          >
+                            ❌
+                          </button>
+                        </>
+                      ) : (
+                        <>
+                          {parseInt(report.cr6ca_reportstatus) === 313330001 && (
+                            <span className="status_approved">✅ Approved</span>
+                          )}
+                          {parseInt(report.cr6ca_reportstatus) === 313330002 && (
+                            <span className="status_rejected">❌ Rejected</span>
+                          )}
                         </>
                       )}
-                      {report.status === 313330001 && <span className="status_approved">✅</span>} {/* Aprovado */}
-                      {report.status === 313330002 && <span className="status_rejected">❌</span>} {/* Rejeitado */}
                     </td>
                   </tr>
                 ))
@@ -587,52 +696,154 @@ const Management = () => {
               )}
             </tbody>
           </table>
-          {reportViewMode === 'edit-report' && selectedReport && (
+        )}
+        {reportViewMode === 'analyze' && analyzedReport && (
+            <div className="analysis_section">
+              <h2>Relatório Analisado</h2>
+              <p><strong>Data:</strong> {new Date(analyzedReport.createdon).toLocaleDateString()}</p>
+
+              <p><strong>Horas:</strong> {analyzedReport.cr6ca_hoursworked}</p>
+
+              <p><strong>Status:</strong> {statusOptions[analyzedReport.cr6ca_reportstatus] || analyzedReport.cr6ca_reportstatus}</p>
+
+              <p><strong>Cliente:</strong> {analyzedReport.cr6ca_AccountID?.name}</p>
+
+              <p><strong>Tipo de Atividade:</strong> {
+                activityTypes.find(a => a.id === analyzedReport.cr6ca_ActivityTypeID?.cr6ca_activitytypeid)?.name || "—"
+              }</p>
+
+              <p><strong>Projeto:</strong> {
+                projects.find(p => p.id === analyzedReport.cr6ca_ProjectID?.cr6ca_projectid)?.name || '—'
+              }</p>
+
+              <p><strong>Tipo de Projeto:</strong> {
+                projectTypes.find(pt => pt.id === analyzedReport.cr6ca_ProjectTypeID?.cr6ca_projecttypeid)?.name || '—'
+              }</p>
+
+              <p><strong>Tarefa:</strong> {
+                tasks.find(t => t.id === analyzedReport.cr6ca_TaskID?.activityid)?.name || '—'
+              }</p>
+
+              <p><strong>Tipo de Tempo:</strong> {
+                timeTypes.find(tt => tt.id === analyzedReport.cr6ca_TimeTypeID?.cr6ca_timetypeid)?.name || '—'
+              }</p>
+
+              <p><strong>Comentário:</strong> {analyzedReport.cr6ca_comment || '—'}</p>
+              <button onClick={handleBackToTable}>Back</button>
+            </div>
+          )}
+          {reportViewMode === 'edit' && selectedReport && (
             <div className="edit-report-form">
               <h2>Edit Report</h2>
               <form onSubmit={handleEditReportSubmit}>
 
-                <label>Client:</label>
-                <input
-                  type="text"
-                  value={editedAccount}
-                  onChange={(e) => setEditedAccount(e.target.value)}
-                />
+                {/* Accounts */}
+                <div className="edit-field">
+                  <div className="current-value">
+                    Client: {accounts.find(acc => acc.id === selectedReport?.cr6ca_AccountID?.accountid)?.name || '—'}
+                  </div>
+                  <select
+                    value={editedAccount}
+                    onChange={(e) => setEditedAccount(e.target.value)}
+                  >
+                    <option value="">Selecione</option>
+                    {accounts.map((acc) => (
+                      <option key={acc.id} value={acc.id}>
+                        {acc.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
 
-                <label>Activity Type:</label>
-                <input
-                  type="text"
-                  value={editedActivityType}
-                  onChange={(e) => setEditedActivityType(e.target.value)}
-                />
+                {/* Activity Type */}
+                <div className="edit-field">
+                  <div className="current-value">
+                  Activity Type: {activityTypes.find(a => a.id === selectedReport?.cr6ca_ActivityTypeID?.cr6ca_activitytypeid)?.name || '—'}
+                  </div>
+                  <select
+                    value={editedActivityType}
+                    onChange={(e) => setEditedActivityType(e.target.value)}
+                  >
+                    <option value="">Selecione</option>
+                    {activityTypes.map((a) => (
+                      <option key={a.id} value={a.id}>
+                        {a.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
 
-                <label>Project:</label>
-                <input
-                  type="text"
-                  value={editedProject}
-                  onChange={(e) => setEditedProject(e.target.value)}
-                />  
+                {/* Project */}
+                <div className="edit-field">
+                  <div className="current-value">
+                  Project: {projects.find(p => p.id === selectedReport?.cr6ca_ProjectID?.cr6ca_projectid)?.name || '—'}
+                  </div>
+                  <select
+                    value={editedProject}
+                    onChange={(e) => setEditedProject(e.target.value)}
+                  >
+                    <option value="">Selecione</option>
+                    {projects.map((p) => (
+                      <option key={p.id} value={p.id}>
+                        {p.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
 
-                <label>Project type:</label>
-                <input
-                  type="text"
-                  value={editedProjectType}
-                  onChange={(e) => setEditedProjectType(e.target.value)}
-                />
+                {/* Project Type */}
+                <div className="edit-field">
+                  <div className="current-value">
+                    Project Type: {projectTypes.find(pt => pt.id === selectedReport?.cr6ca_ProjectTypeID?.cr6ca_projecttypeid)?.name || '—'}
+                  </div>
+                  <select
+                    value={editedProjectType}
+                    onChange={(e) => setEditedProjectType(e.target.value)}
+                  >
+                    <option value="">Selecione</option>
+                    {projectTypes.map((pt) => (
+                      <option key={pt.id} value={pt.id}>
+                        {pt.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
 
-                <label>Task:</label>
-                <input
-                  type="text"
-                  value={editedTask}
-                  onChange={(e) => setEditedTask(e.target.value)}
-                />
+                {/* Task */}
+                <div className="edit-field">
+                  <div className="current-value">
+                    Task: {tasks.find(t => t.id === selectedReport?.cr6ca_TaskID?.activityid)?.name || '—'}
+                  </div>
+                  <select
+                    value={editedTask}
+                    onChange={(e) => setEditedTask(e.target.value)}
+                  >
+                    <option value="">Selecione</option>
+                    {tasks.map((t) => (
+                      <option key={t.id} value={t.id}>
+                        {t.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
 
-                <label>Time Type:</label>
-                <input
-                  type="text"
-                  value={editedTimeType}
-                  onChange={(e) => setEditedTimeType(e.target.value)}
-                />
+                {/* Time Type */}
+                <div className="edit-field">
+                  <div className="current-value">
+                    Time Type: {timeTypes.find(tt => tt.id === selectedReport?.cr6ca_TimeTypeID?.cr6ca_timetypeid)?.name || '—'}
+                  </div>
+                  <select
+                    value={editedTimeType}
+                    onChange={(e) => setEditedTimeType(e.target.value)}
+                  >
+                    <option value="">Selecione</option>
+                    {timeTypes.map((tt) => (
+                      <option key={tt.id} value={tt.id}>
+                        {tt.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
 
                 <label>Hours Worked:</label>
                 <input
@@ -650,7 +861,7 @@ const Management = () => {
 
                 <div className="form-actions">
                   <button type="submit">Save Changes</button>
-                  <button type="button" onClick={() => setReportViewMode('list')}>
+                  <button type="button" onClick={handleBackToTable}>
                     Cancel
                   </button>
                 </div>

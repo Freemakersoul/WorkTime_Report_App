@@ -8,7 +8,6 @@
 }
 
 .reports_left_section {
-  margin-top: 8vh;
   flex:1;
   display: flex;
   flex-direction: column;
@@ -16,7 +15,6 @@
 }
 
 .reports_middle_section {
-  margin-top: 8vh;
   flex:1;
   display: flex;
   flex-direction: column;
@@ -24,7 +22,6 @@
 }
 
 .reports_right_section {
-  margin-top: 8vh;
   flex:1;
   display: flex;
   flex-direction: column;

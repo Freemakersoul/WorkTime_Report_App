@@ -930,18 +930,15 @@ class TimeReportInput(BaseModel):
     activityid: str
     cr6ca_timetypeid: str
     cr6ca_reportstatus: Optional[int] = 313330000
-  
-logging.basicConfig(level=logging.DEBUG)
+
 
 @app.post("/create-timereport")
 async def create_timereport(input: TimeReportInput):
     try:
-        logging.debug(f"Dados recebidos: {input}")
         
         token = get_access_token()
         if not token:
             raise HTTPException(status_code=400, detail="Invalid access token")
-        logging.debug(f"Token de acesso: {token}")
 
         headers = {
             "Authorization": f"Bearer {token}",
@@ -965,8 +962,6 @@ async def create_timereport(input: TimeReportInput):
             "cr6ca_TimeTypeID@odata.bind": f"/cr6ca_timetypes({input.cr6ca_timetypeid})",  # Tipo de tempo
             "cr6ca_reportstatus": input.cr6ca_reportstatus
         }
-
-        logging.debug(f"Dados a enviar para o Dynamics: {data}")
 
         response = requests.post(url, headers=headers, json=data)
 
@@ -1044,7 +1039,6 @@ async def get_user_timeline(employee_id: Optional[str] = None, createdon: Option
 @app.patch("/update-timereport/{cr6ca_timereportid}")
 async def update_timereport(cr6ca_timereportid: str, input: TimeReportInput):
     try:
-        logging.debug(f"Dados recebidos para atualização: {input}")
         
         token = get_access_token()
         if not token:
@@ -1073,9 +1067,6 @@ async def update_timereport(cr6ca_timereportid: str, input: TimeReportInput):
             "cr6ca_TaskID@odata.bind": f"/tasks({input.activityid})",  # Tarefa
             "cr6ca_TimeTypeID@odata.bind": f"/cr6ca_timetypes({input.cr6ca_timetypeid})",  # Tipo de tempo
         }
-        
-        logging.debug(f"URL de requisição para atualizar o relatório: {url}")
-        logging.debug(f"Dados a enviar para o Dynamics: {data}")
 
         # Envia a requisição para atualizar o relatório
         response = requests.patch(url, headers=headers, json=data)
@@ -1088,6 +1079,44 @@ async def update_timereport(cr6ca_timereportid: str, input: TimeReportInput):
 
     except Exception as e:
         logging.error(f"Erro no servidor: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
+    
+#############################
+# UPDATE TIME REPORT STATUS #
+#############################
+class ReportStatusUpdate(BaseModel):
+    cr6ca_reportstatus: int
+
+@app.patch("/update-reportstatus/{cr6ca_timereportid}")
+async def update_report_status(cr6ca_timereportid: str, input: ReportStatusUpdate):
+    try:
+
+        token = get_access_token()
+        if not token:
+            raise HTTPException(status_code=400, detail="Invalid access token")
+
+        headers = {
+            "Authorization": f"Bearer {token}",
+            "Accept": "application/json",
+            "Content-Type": "application/json",
+        }
+
+        url = f"{DYNAMICS_URL}/api/data/v9.2/cr6ca_timereports({cr6ca_timereportid})"
+
+        data = {
+            "cr6ca_reportstatus": input.cr6ca_reportstatus
+        }
+
+        response = requests.patch(url, headers=headers, json=data)
+
+        if response.status_code == 204:
+            return {"status": "success", "message": "Report status updated successfully"}
+        else:
+            logging.error(f"Erro na atualização de status: {response.status_code} - {response.text}")
+            raise HTTPException(status_code=response.status_code, detail=response.text)
+
+    except Exception as e:
+        logging.error(f"Erro no servidor ao atualizar status: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
 
   
