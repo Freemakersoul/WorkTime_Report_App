@@ -245,7 +245,7 @@ const Vacations = () => {
             <option value={0.5}>Half Day</option>
           </select>
 
-          <button className="submit_button" type="submit">🗓️ Submit Annual Leave Request</button>
+          <button className="submit_button" type="submit">🗓️ Submit Request</button>
 
           {/* IT ISNT A PART OF THE FORM, ITS JUST TO BE ALIGN WITH IT */}
           {/*BEGIN */}
