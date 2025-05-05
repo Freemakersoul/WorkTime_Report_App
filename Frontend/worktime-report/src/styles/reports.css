@@ -1,3 +1,6 @@
+/*************************/
+/*REPORTS CONTENT STYLES*/
+/***********************/
 .reports_content {
   width: 100%;
   height: 100%;
@@ -7,6 +10,9 @@
   box-sizing: border-box;
 }
 
+/**********************/
+/*LEFT SECTION STYLES*/
+/********************/
 .reports_left_section {
   flex:1;
   display: flex;
@@ -70,7 +76,9 @@
   background-color: green;
 }
 
-/**/
+/************************/
+/*MIDDLE SECTION STYLES*/
+/**********************/
 .reports_middle_section {
   flex:1;
   display: flex;
@@ -89,6 +97,9 @@
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
+/***********************/
+/*RIGHT SECTION STYLES*/
+/*********************/
 .reports_right_section {
   display: flex;
   flex-direction: column;
@@ -102,7 +113,9 @@
   flex-direction: column;
 }
 
-
+/*********************************/
+/*USER REPORTS LIST TABLE STYLES*/
+/*******************************/
 .user_reports_table {
   display: flex;
   align-self: center;
@@ -122,7 +135,7 @@
   padding: 0.2vh 0.6vh; 
   background-color: darkslategrey;
   text-align: center;
-  margin-bottom: 0.5vh;  /* Margem entre as linhas */
+  margin-bottom: 0.5vh; 
   overflow: hidden;
 }
 
@@ -131,28 +144,33 @@
 }
 
 .user_reports_table th {
-  background-color: rgb(32, 31, 31);  /* Cor de fundo para os cabeçalhos */
-  color: whitesmoke;  /* Cor do texto dos cabeçalhos */
-  font-size: 0.7rem;  /* Diminui o tamanho da fonte nos cabeçalhos */
-  padding-top: 1vh;  /* Padding superior para os cabeçalhos */
-  padding-bottom: 1vh;  /* Padding inferior para os cabeçalhos */
-  position: sticky;  /* Cabeçalhos fixos */
-  top: 0;  /* Fixação no topo */
+  background-color: rgb(32, 31, 31);  
+  color: whitesmoke;  
+  font-size: 0.7rem;  
+  padding-top: 1vh;  
+  padding-bottom: 1vh;  
+  position: sticky;  
+  top: 0;  
   z-index: 1;
 }
 
 .user_reports_table::-webkit-scrollbar {
-  width: 6px; /* largura da scrollbar */
+  width: 6px; 
 }
 
 .user_reports_table::-webkit-scrollbar-track {
-  background: transparent; /* fundo da barra */
+  background: transparent; 
   border-radius: 10px;
 }
 
 .user_reports_table::-webkit-scrollbar-thumb {
-  background-color: rgba(255, 255, 255, 0.3); /* cor da thumb */
+  background-color: rgba(255, 255, 255, 0.3); 
   border-radius: 10px; 
   border: 1px solid transparent;
   background-clip: content-box;
 }
+
+/**************************************************************/
+/* SOME RIGHT SECTION STYLES COME FROM MANAGEMENT.CSS STYLES */
+/* DUE TO SAME CONTENT NEDDED ON BOTH PAGES                 */
+/***********************************************************/

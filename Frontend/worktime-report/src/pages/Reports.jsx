@@ -1,8 +1,10 @@
+// IMPORTS NEEDED
 import React, { useEffect, useState } from "react";
 import axios from 'axios';
 
-// Reports.jsx
 const Reports = () => {
+
+  // CONSTS TO FETCH TIME REPORT ORIGINAL VALUES  
   const [accounts, setAccounts] = useState([]);
   const [activityTypes, setActivityTypes] = useState([]);
   const [projects, setProjects] = useState([]);
@@ -12,6 +14,7 @@ const Reports = () => {
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState(null);
 
+  // CONSTS TO SELECTED OPTIONS AND SET VALUES ON CREATE REPORT FORM FIELDS
   const [selectedAccount, setSelectedAccount] = useState("");
   const [selectedActivityType, setSelectedActivityType] = useState("");
   const [selectedProject, setSelectedProject] = useState("");
@@ -21,7 +24,7 @@ const Reports = () => {
   const [comment, setComment] = useState("");
   const [hoursWorked, setHoursWorked] = useState("");
 
-  // CONSTS FOR REPORTS MANAGEMENT
+  // CONSTS FOR REPORTS MANAGEMENT (EDIT SELECTED REPORT AND ANALYZE REPORT)
   const [reports, setReports] = useState([]);
   const [selectedReport, setSelectedReport] = useState(null);
   const [editedComment, setEditedComment] = useState('');
@@ -35,10 +38,12 @@ const Reports = () => {
   const [analyzedReport, setAnalyzedReport] = useState(null);
   const [viewMode, setViewMode] = useState('list');
 
+  // CONSTS TO GET USER INFO
   const user = JSON.parse(localStorage.getItem('user'));
   const userId = user?.id;
 
   // REPORTS MANAGEMENT
+  // FUNCTION O HANDLE TIME REPORT EDITION
     const handleEditReport = (report) => {
       console.log("EDITING REPORT:", report);
       setSelectedReport(report);
@@ -52,7 +57,8 @@ const Reports = () => {
       setEditedTimeType(report.cr6ca_TimeTypeID?.cr6ca_timetypeid || '');
       handleViewChange('edit');
     };
-  
+    
+    // FUNCTION THET HANDLES THE TIME REPORT SUBMITTION
     const handleEditReportSubmit = async (e) => {
       e.preventDefault();
   
@@ -68,12 +74,12 @@ const Reports = () => {
         editedProjectType,
         editedTask,
         editedTimeType,
-        employeeId, // Certifique-se de passar o id do funcionário aqui
+        employeeId, 
         editedHours,
         editedComment
     });
   
-      // Verifique se algum valor está undefined ou null
+      // VERIFIES IF A VALUE IS UNDEFINED OR NULL
       if (!editedAccount || !editedActivityType || !editedProject || !editedProjectType || !editedTask || !editedTimeType) {
         alert('Todos os campos obrigatórios devem ser preenchidos!');
         return;
@@ -92,7 +98,7 @@ const Reports = () => {
           cr6ca_comment: editedComment
         });
     
-        // Atualiza a lista de relatórios com as alterações
+        // UPDATES TIME REPORTS LIST
         setReports(prevReports => 
           prevReports.map(report => 
               report.cr6ca_timereportid === selectedReport.cr6ca_timereportid 
@@ -119,8 +125,10 @@ const Reports = () => {
       }
     };
 
-  // Carregar todas as opções no mount
+  // USEFFECTS FOR OPTIONS AND REPORTS 
   useEffect(() => {
+
+    // FUNCTION TO GET FIELDS OPTIONS
     const fetchOptions = async () => {
       setLoading(true);
       setErrorMessage(null);
@@ -154,7 +162,8 @@ const Reports = () => {
         setLoading(false);
       }
     };
-
+    
+    // FUNCTION TO GET TIME REPORTS LIST
     const fetchReports = async () => {
       try {
         const response = await axios.get('http://localhost:8000/get-user-timereports');
@@ -175,7 +184,7 @@ const Reports = () => {
     fetchOptions();
   },[]);
 
-  // Validação de formulário
+  // FUNCTION TO VALIDATE FORM (CREATE REPORT)
   const isFormValid = () => {
     return (
       selectedAccount &&
@@ -188,6 +197,7 @@ const Reports = () => {
     );
   };
 
+  //FUNCTION TO SUBMIT FORM (CREATE REPORT)
   const handleSubmit = async (e) => {
     e.preventDefault();
     
@@ -215,16 +225,13 @@ const Reports = () => {
       cr6ca_employeeid: userId,
     };
   
-    // Imprimir os dados para depuração
-    console.log("Dados enviados para o backend:", data);
-  
     try {
       const response = await axios.post(
         "http://localhost:8000/create-timereport", 
-        data, // Enviar os dados no corpo da requisição
+        data, 
         {
           headers: {
-            "Content-Type": "application/json", // Garantir que o conteúdo seja JSON
+            "Content-Type": "application/json", 
           }
         }
       );
@@ -234,28 +241,33 @@ const Reports = () => {
     }
   };
 
+  // FUNCTION TO GET LAST REPORT INFO
   const lastReport = reports.length > 0
   ? reports.reduce((latest, current) => {
       return new Date(current.createdon) > new Date(latest.createdon) ? current : latest;
     })
   : null;
 
+  // DICTIONARY TO MANAGE REPORT STATUS
   const statusOptions = {
     313330000: "Pending",
     313330001: "Approved",
     313330002: "Rejected"
   }
 
+  // FUNCTION TO HANDLE VIEW MODE CHANGES
   const handleViewChange = (mode) => {
     setViewMode(mode);
   };
-
+  
+  // FUNCTION TO ANALYZE REPORTS INFO
   const handleAnalyzeReport = (report) => {
     console.log("Analisando relatório:", report);
     handleViewChange('analyze');
     setAnalyzedReport(report);
   };
 
+  // FUNCTION TO CHANGE VIEW BACK TO LIST MODE
   const handleBackToTable = () => {
     setViewMode('list');
     setSelectedReport(null);  // Limpa o relatório selecionado
@@ -263,7 +275,9 @@ const Reports = () => {
 
   return (
     <>
+      {/* REPORTS */}
       <div className="reports_content">
+        {/* REPORT SUBMIT FORM */}
         <div className="reports_left_section">
         <h1 className="main_title">Report Submit</h1>
           <form onSubmit={handleSubmit} className="report_form">
@@ -367,6 +381,7 @@ const Reports = () => {
 
         <div className="divider_left"></div>
         
+        {/* LAST REPORT DETAILS */}
         {lastReport && (
           <div className="reports_middle_section">
             <h1 className="main_title">Last Report Details</h1>
@@ -431,10 +446,12 @@ const Reports = () => {
         )}
 
         <div className="divider_right"></div>
-
+        
+        {/* USER REPORTS MANAGEMENT */}
         <div className="reports_right_section">
           <div className="reports_container">
             <h1 className="main_title">All Reports Submitted</h1>
+            {/* USER REPORTS LIST VIEW MODE */}
             {viewMode === 'list' && (
               <table className="user_reports_table">
                 <thead>
@@ -467,6 +484,7 @@ const Reports = () => {
                 </tbody>
               </table>
             )}
+            {/* USER REPORTS ANALYZE VIEW MODE */}
             {viewMode === 'analyze' && analyzedReport && (
               <div className="analysis_section">
                 <p>
@@ -528,6 +546,7 @@ const Reports = () => {
                 
               </div>
             )}
+            {/* USER REPORTS EDIT VIEW MODE */}
             {viewMode === 'edit' && selectedReport && (
               <div className="edit_report_form">
                 <form  onSubmit={handleEditReportSubmit}>

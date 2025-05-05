@@ -4,10 +4,12 @@ import { FaCalendarAlt } from 'react-icons/fa';
 import vacations from '../assets/imgs/vacations.png';
 
 const Vacations = () => {
+
+  // CONSTS TO CREATE VACATION REQUEST, TO SEE REQUEST STATE, ETC...
   const [vacationData, setVacationData] = useState(null);
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
-  const [halfDay, setHalfDay] = useState(0); // 0 for full day, 1 for half day
+  const [halfDay, setHalfDay] = useState(0); 
   const [reasonIfRejected, setReasonIfRejected] = useState('');
   const [currentVacationStatus, setCurrentVacationStatus] = useState(313330000);
   const [isRejected, setIsRejected] = useState(false); 
@@ -16,18 +18,19 @@ const Vacations = () => {
   const [isHolidayModalOpen, setIsHolidayModalOpen] = useState(false);
   const user = JSON.parse(localStorage.getItem('user'));
 
+  // UEEFECCTS TO FETCH VACATION DATA, VACATION STATUS AND FECTCH HOLIDAYS
   useEffect(() => {
 
     if (!user || !user.id) {
-      console.log('Usuário não encontrado no localStorage');
+      console.log('User not found');
       return;
     }
-
+    
+    // FUNCTION TO FETCH VACATION DATA
     const fetchVacationData = async () => {
       try {
-        // Faz a requisição à API para buscar o saldo de férias
         const response = await axios.get(`http://localhost:8000/get-vacation-balance/${user.id}`);
-        console.log('Resposta de férias:', response.data);
+        
 
         if (response.data.vacation_balances && response.data.vacation_balances.length > 0) {
           // Ordena os dados por ano (do mais recente para o mais antigo)
@@ -39,6 +42,24 @@ const Vacations = () => {
       }
     };
 
+    // FUNCTION TO FETCH VACATION STATUS
+    const fetchVacationStatusByUser = async () => {
+      try {
+        const response = await axios.get(`http://localhost:8000/get-vacation-status-by-user-id/${user.id}`);
+        console.log('Status mais recente:', response.data);
+    
+        const { vacation_status, reason_if_rejected } = response.data;
+    
+        setCurrentVacationStatus(vacation_status);
+        setReasonIfRejected(reason_if_rejected);
+    
+        setIsRejected(vacation_status === 313330002); 
+      } catch (error) {
+        console.error('Erro ao buscar status mais recente de férias:', error);
+      }
+    };
+
+    // FUNCTION TO FETCH PUBLIC HOLIDAYS
     const fetchHolidays = async () => {
           try {
             const response = await axios.get("http://localhost:8000/get-public-holidays"); // 
@@ -55,28 +76,13 @@ const Vacations = () => {
           }
         };
 
-    // Chama a função para buscar os dados de férias
+    
     fetchVacationData();
     fetchVacationStatusByUser();
     fetchHolidays();
   },[]);
 
-  const fetchVacationStatusByUser = async () => {
-    try {
-      const response = await axios.get(`http://localhost:8000/get-vacation-status-by-user-id/${user.id}`);
-      console.log('Status mais recente:', response.data);
-  
-      const { vacation_status, reason_if_rejected } = response.data;
-  
-      setCurrentVacationStatus(vacation_status);
-      setReasonIfRejected(reason_if_rejected);
-  
-      setIsRejected(vacation_status === 313330002); // Rejeitada
-    } catch (error) {
-      console.error('Erro ao buscar status mais recente de férias:', error);
-    }
-  };
-
+  // FUNCTION TO HANDLE VACATION REQUEST SUBMITTION
   const handleSubmitVacationRequest = async (e) => {
     e.preventDefault();
 
@@ -93,12 +99,12 @@ const Vacations = () => {
       return;
     }
 
-    // Cálculo de dias solicitados
+    // CALCULATE REQUESTED DAYS
     let requestedDays = 0;
     const current = new Date(start);
 
     while (current <= end) {
-      const dayOfWeek = current.getDay(); // 0 = Domingo, 6 = Sábado
+      const dayOfWeek = current.getDay(); // 0 = SUNDAY, 6 = SATURDAY
       
       if (dayOfWeek !== 0 && dayOfWeek !== 6 && !isHoliday(current)) {
         requestedDays++;
@@ -111,6 +117,7 @@ const Vacations = () => {
       requestedDays = 0.5;
     }
 
+    // CONST TAHT GETS AVAILABLE DAYS VALUE
     const availableDays = vacationData?.available_days ?? 0;
 
     if (requestedDays > availableDays) {
@@ -126,13 +133,12 @@ const Vacations = () => {
         user_id: user.id
       });
 
-      setVacationRequestStatus(response.data); // Armazena a resposta de sucesso ou erro
-      console.log('Resultado da requisição de férias:', response.data);
+      setVacationRequestStatus(response.data); 
 
-      // Se a solicitação for rejeitada, vamos permitir que o motivo da rejeição seja preenchido
+      // If request is rejected, allow reason if rejected to be write 
       if (response.data.status === 'rejected') {
         setIsRejected(true);
-        setReasonIfRejected(response.data.reason_if_rejected || '');  // Se a resposta já tiver motivo de rejeição
+        setReasonIfRejected(response.data.reason_if_rejected || ''); 
       }
 
     } catch (error) {
@@ -141,12 +147,14 @@ const Vacations = () => {
     }
   };
 
+  // DICTIONARY WITH VACATION STATUS
   const vacationStatusMap = {
     313330000: 'Pending',
     313330001: 'Approved',
     313330002: 'Rejected',
   };
 
+  // FUNCTION THAT HANDLES IF ITS HOLIDAY OR NOT
   const isHoliday = (date) => {
     return holidays.some(holiday => {
       const holidayDate = new Date(holiday.date);
@@ -160,7 +168,7 @@ const Vacations = () => {
     setIsHolidayModalOpen(!isHolidayModalOpen);
   };
 
-  // Renderiza os feriados no modal
+  //FUNCTION THAT RENDERIZE HOLIDAYS ON MODAL
   const renderHolidayList = () => {
 
     const sortedHolidays = [...holidays].sort((a, b) => a.date - b.date);
@@ -174,6 +182,7 @@ const Vacations = () => {
   
   return (
     <div className="vacations_content">
+      {/* VACATIONS LEFT SECTION */}
       <div className="vacations_left_section">
         <h1 className="main_title">Annual Leave: {vacationData?.year || 'Loading...'} </h1>
         <img src={vacations} alt="calendar photo" className="annual_leave_photo"/>
@@ -189,9 +198,10 @@ const Vacations = () => {
 
       <div className="divider"></div>
 
+      {/* VACATIONS RIGHT SECTION */}
       <div className="vacations_right_section">
         <h1 className="main_title">Annual Leave Request</h1>
-  
+        {/* VACATIONS REQUEST FORM */}
         <form className="annual_leave_form" onSubmit={handleSubmitVacationRequest}>
         
           <label className="form_label">Start date:</label>

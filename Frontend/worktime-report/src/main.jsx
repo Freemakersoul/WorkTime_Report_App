@@ -1,3 +1,4 @@
+// Styles, libraries, components, modules imports
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
@@ -9,15 +10,17 @@ import './styles/profile.css';
 import './styles/management.css';
 import './styles/vacations.css';
 import './styles/reports.css';
+import './styles/invoice.css';
 import App from './App.jsx';
 import MainDashboard from './pages/MainDashboard';
 import Dashboard from './pages/Dashboard';
 import Reports from './pages/Reports';
 import Vacations from './pages/Vacations';
 import Management from './pages/Management';
-import Profile from './pages/Profile'
+import Profile from './pages/Profile';
+import Invoice from './pages/Invoice';
 
-
+// Routes navigation
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <BrowserRouter>
@@ -29,6 +32,7 @@ createRoot(document.getElementById('root')).render(
           <Route path="vacations" element={<Vacations />} />
           <Route path="management" element={<Management />} />
           <Route path="profile" element={<Profile />} />
+          <Route path="invoice" element={<Invoice />} />
         </Route>
       </Routes>
     </BrowserRouter>

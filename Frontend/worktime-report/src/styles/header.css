@@ -1,3 +1,6 @@
+/****************/
+/*HEADER STYLES*/
+/**************/
 .header {
   position: relative;
   display: flex;
@@ -38,7 +41,7 @@
   line-height: clamp(2vh, 3vh, 3.5vh);
   white-space: nowrap;
   text-overflow: ellipsis;
-  max-width: 60vw; /* evita que invada o restante do header */
+  max-width: 60vw; 
   font-weight: 600;
   color: white;
   text-align: center;
@@ -72,8 +75,8 @@
 
 .notification_dropdown {
   position: absolute;
-  top: 120%; /* ou ajuste fino tipo: top: 30px; */
-  right: 40px; /* Ajuste isso se necessário, depende da posição do sino */
+  top: 120%; 
+  right: 40px; 
   background-color: white;
   border: 1px solid #ddd;
   border-radius: 10px;

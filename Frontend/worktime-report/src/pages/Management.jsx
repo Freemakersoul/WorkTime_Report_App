@@ -1,3 +1,4 @@
+// libraries, modules, components imports
 import React, { useEffect, useState } from 'react';
 import defaultProfilePhoto from '../assets/imgs/default_profile_photo.png';
 import Calendar from 'react-calendar';
@@ -14,6 +15,10 @@ const Management = () => {
   const [userPassword, setUserPassword] = useState('');
   const [selectedUserType, setSelectedUserType] = useState('');
   const [profilePhotoUrl, setProfilePhotoUrl] = useState('');
+  const userType = [
+    { value: 313330000, label: "User" },
+    { value: 313330001, label: "Admin" },
+  ];
 
   // CONSTS FOR LEAVES MANAGEMENT
   const [leaves, setLeaves] = useState([]);
@@ -39,12 +44,8 @@ const Management = () => {
   const [editedTask, setEditedTask] = useState('');
   const [editedTimeType, setEditedTimeType] = useState('');
   const [analyzedReport, setAnalyzedReport] = useState(null);
-  const userType = [
-    { value: 313330000, label: "User" },
-    { value: 313330001, label: "Admin" },
-  ];
 
-  // USER MANAGEMENT
+  // FUNCTION FOR USER DATA MANAGEMENT
   const handleSubmit = async (e) => {
     e.preventDefault();
   
@@ -61,7 +62,7 @@ const Management = () => {
     }
     formData.append("usertype", selectedUserType);
     
-    // Converter a imagem (se estiver em base64)
+    // Convert photo (if base64 formatted)
     if (profilePhotoUrl && profilePhotoUrl.startsWith("data:image")) {
       const blob = await (await fetch(profilePhotoUrl)).blob();
       formData.append("file", blob, "profile.png");
@@ -79,7 +80,7 @@ const Management = () => {
       );
   
       alert("User successfully updated!");
-      // Atualiza a lista de users com o novo nome/email/etc.
+      // Updates users list with the new user data
       setUsers((prevUsers) =>
         prevUsers.map((user) =>
           user.id === selectedUser.id
@@ -94,6 +95,7 @@ const Management = () => {
     }
   };
 
+  // FUNCTION TO MANAGE FILE CHANGE
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -105,6 +107,7 @@ const Management = () => {
     }
   };
 
+  // FUNTION TO GET USER TYPE LABEL (ONLY ADMIN SEES IT)
   const getUserTypeLabel = (type) => {
     switch (type) {
       case 313330000: return "User";
@@ -113,6 +116,7 @@ const Management = () => {
     }
   };
 
+  // FUNCTION TO HANDLE THE USER DATA EDITION
   const handleEdit = (user) => {
     setSelectedUser(user);
     setUserName(user.name);
@@ -123,6 +127,7 @@ const Management = () => {
     setUserViewMode('profile');
   };
 
+  // FUNCTION TO DELETE USER DATA
   const handleDelete = async (userId) => {
     if (window.confirm("Are you sure you want to delete this user? This action cannot be undone.")) {
       try {
@@ -137,6 +142,7 @@ const Management = () => {
   };
 
   // LEAVES MANAGEMENT
+  //  FUNCTION TO APPROVE VACATION REQUEST
   const handleApprove = async (leaveId) => {
     try {
       await axios.patch(`http://localhost:8000/update-vacation-status/${leaveId}`, {
@@ -150,6 +156,7 @@ const Management = () => {
     }
   };
   
+  // FUNCTION TO REJECT VACATION REQUEST
   const handleReject = async (leaveId) => {
     const reason = prompt("Please provide a reason for rejecting:");
     if (!reason) return;
@@ -174,11 +181,12 @@ const Management = () => {
       alert("Failed to reject leave request.");
     }
   };
-
+  
+  // FUNCTION TO CREATE LEAVES CALENDAR WITH ALL INFO NEEDED
   const MyCalendar = ({ leaves }) => {
     const [date, setDate] = useState(new Date());
   
-    // Transforma as datas de início a fim de cada leave em objetos Date
+    // CONVERT THE START AND END DATES OF EACH LEAVE INTO DATE OBJECTS
     const leaveDates = leaves.flatMap(leave => {
       const start = new Date(leave.start);
       const end = new Date(leave.end);
@@ -191,6 +199,7 @@ const Management = () => {
       return days;
     });
   
+    // FUNCTION THAT VERIFIES IF IT'S A LEAVE DAY
     const isLeaveDay = (date) => {
       return leaveDates.some(
         (d) =>
@@ -200,6 +209,7 @@ const Management = () => {
       );
     };
 
+    // FUNCTION THAT VERIFIES IF IT'S A HOLIDAY
     const isHoliday = (date) => {
       return holidays.some(h =>
         h.date.getFullYear() === date.getFullYear() &&
@@ -207,7 +217,8 @@ const Management = () => {
         h.date.getDate() === date.getDate()
       );
     };
-
+    
+    // RETURNS ALL LEAVE DATA TO REACT CALENDAR
     return (
       <div className="my-calendar-wrapper">
         <Calendar
@@ -260,7 +271,7 @@ const Management = () => {
         cr6ca_reportstatus: newStatus,
       });
   
-      // Atualiza o estado local
+      // UPDATE LOCAL STATE
       setReports(prevReports =>
         prevReports.map(report =>
           report.cr6ca_timereportid === reportId
@@ -276,6 +287,7 @@ const Management = () => {
     }
   };
 
+  // FUNCTION TO HANDLE REPORT EDITION
   const handleEditReport = (report) => {
     console.log("EDITING REPORT:", report);
     setSelectedReport(report);
@@ -291,6 +303,7 @@ const Management = () => {
     setReportViewMode('edit');
   };
 
+  // FUNCTION THET HANDLES THE TIME REPORT SUBMITTION
   const handleEditReportSubmit = async (e) => {
     e.preventDefault();
 
@@ -306,12 +319,12 @@ const Management = () => {
       editedProjectType,
       editedTask,
       editedTimeType,
-      employeeId, // Certifique-se de passar o id do funcionário aqui
+      employeeId, 
       editedHours,
       editedComment
   });
 
-    // Verifique se algum valor está undefined ou null
+    // VERIFIES IF A VALUE IS UNDEFINED OR NULL
     if (!editedAccount || !editedActivityType || !editedProject || !editedProjectType || !editedTask || !editedTimeType) {
       alert('Todos os campos obrigatórios devem ser preenchidos!');
       return;
@@ -331,7 +344,7 @@ const Management = () => {
         cr6ca_reportstatus: editedReportStatus,
       });
   
-      // Atualiza a lista de relatórios com as alterações
+      // UPDATES TIME REPORTS LIST
       setReports(prevReports => 
         prevReports.map(report => 
             report.cr6ca_timereportid === selectedReport.cr6ca_timereportid 
@@ -358,9 +371,10 @@ const Management = () => {
     }
   };
 
-  // USEEFFECTS FOR USERS, LEAVES, HOLIDAYS AND REPORTS
+  // USEEFFECTS FOR USERS, OPTIONS, LEAVES, HOLIDAYS AND REPORTS
   useEffect(() => {
 
+    // FUNCTION TO GET USERS LIST DATA
     const fetchUsers = async () => {
       try {
         const response = await axios.get("http://localhost:8000/get-all-users");
@@ -370,13 +384,12 @@ const Management = () => {
         console.error("Erro ao buscar os utilizadores:", error);
       }
     };
-  
+    
+    // FUNCTION TO GET ALL LEAVES DATA
     const fetchLeaves = async () => {
       try {
         const response = await axios.get("http://localhost:8000/get-all-vacations");
-        console.log("Resposta das férias:", response.data);  // Adicionando o log aqui para inspecionar a estrutura real
-    
-        // Acessando o array correto 'vacations' em 'response.data'
+
         const leavesData = response.data.vacations.map(leave => ({
           id: leave.vacation_id,
           name: leave.user.name, 
@@ -394,6 +407,7 @@ const Management = () => {
       }
     };
 
+    // FUNCTION TO GET PUBLIC HOLIDAYS 
     const fetchHolidays = async () => {
       try {
         const response = await axios.get("http://localhost:8000/get-public-holidays"); // 
@@ -407,6 +421,7 @@ const Management = () => {
       }
     };
 
+    // FUNCTION TO GET TIME REPORTS LIST
     const fetchReports = async () => {
       try {
         const response = await axios.get('http://localhost:8000/get-user-timereports');
@@ -416,7 +431,8 @@ const Management = () => {
         console.error("Erro ao buscar relatórios:", error);
       }
     };
-
+    
+    // FUNCTION TO GET TIME REPORTS OPTIONS FOR CLIENTS, ACTIVITY TYPE, PROJECT, PROJECT TYPE, TASK AND TIME TYPE
     const fetchOptions = async () => {
           try {
             const [
@@ -453,21 +469,24 @@ const Management = () => {
     fetchLeaves();
   }, []);
 
+  // FUNCTION TO HANDLE VIEW MODE CHANGES
   const handleViewChange = (mode) => {
     setReportViewMode(mode);
   };
 
+  // FUNCTION TO ANALYZE REPORTS INFO
   const handleAnalyzeReport = (report) => {
     console.log("Analisando relatório:", report);
     handleViewChange('analyze');
     setAnalyzedReport(report);
   };
 
+  // FUNCTION TO CHANGE VIEW BACK TO LIST MODE
   const handleBackToTable = () => {
     setReportViewMode('list');
     setSelectedReport(null);  
   };
-
+  
   return (
     <div className="management_content">
       {/* USERS MANAGEMENT */}
@@ -510,7 +529,7 @@ const Management = () => {
         ) : (
           <>
             <img src={profilePhotoUrl || defaultProfilePhoto} alt="profile" className="profile_photo" />
-
+            {/* USER EDIT FORM */}
             <form onSubmit={handleSubmit} className="profile_edit_form">
               <label htmlFor="fileUpload" className="custom_file_button">
                 🖉 Change profile photo
@@ -627,6 +646,8 @@ const Management = () => {
       <div className="management_right_section">
         <h1 className="main_title">Reports Management</h1>
         <div className="reports_container">
+
+          {/*LIST VIEW MODE */}
           {reportViewMode === 'list' && (
             <table className="reports_table">
               <thead>
@@ -691,6 +712,8 @@ const Management = () => {
               </tbody>
             </table>
           )}
+
+          {/* ANALYZE VIEW MODE */}
           {reportViewMode === 'analyze' && analyzedReport && (
               <div className="analysis_section">
                 <h2 className="analyze_report_title">{analyzedReport?.cr6ca_EmployeeID?.cr6ca_name || '—'} Report:</h2>
@@ -736,6 +759,8 @@ const Management = () => {
                 <button className="back_button" onClick={handleBackToTable}>← Back</button>
               </div>
             )}
+
+            {/* EDIT VIEW MODE */}
             {reportViewMode === 'edit' && selectedReport && (
               <div className="edit_report_form">
                 <form  onSubmit={handleEditReportSubmit}>

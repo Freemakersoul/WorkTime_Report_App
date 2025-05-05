@@ -55,7 +55,7 @@ html, body {
   justify-content: flex-start;
   margin-top: 10vh;
   width: 50vh;
-  padding: 3vh 2vh; /* Adiciona espaçamento interno */
+  padding: 3vh 2vh; 
   border-radius: 4vh;
   background-color: rgb(62, 104, 134);
   color: whitesmoke;
@@ -171,7 +171,7 @@ Link {
 }
 
 input {
-  width: 100%;  /* Faz os inputs ocuparem toda a largura disponível */
+  width: 100%;  
   padding: 1vh;
   font-size: 2vh;
   margin-bottom: 2vh;
@@ -202,7 +202,7 @@ input {
   color: #155724;
   padding: 2.5vh;
   border-radius: 2.5vh;
-  margin: 3vh auto 0 auto; /* dá um espacinho entre o .app_info e o form */
+  margin: 3vh auto 0 auto; 
   font-size: 2vh;
   font-weight: 600;
   text-align: center;

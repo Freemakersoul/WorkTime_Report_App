@@ -1,3 +1,6 @@
+/*****************/
+/*PROFILE STYLES*/
+/***************/
 html, body, .scale_wrapper_content {
   height: 100%;
   margin: 0;
@@ -15,7 +18,9 @@ html, body, .scale_wrapper_content {
   flex-grow: 1;
 }
 
-/**/
+/******************************/
+/*PROFILE LEFT SECTION STYLES*/
+/****************************/
 .profile_left_section {
   display: flex;
   flex-direction: column;
@@ -23,6 +28,9 @@ html, body, .scale_wrapper_content {
   flex:1;
 }
 
+/**********************/
+/*PROFILE INFO STYLES*/
+/********************/
 .profile_photo {
   margin-top: 3vh;
   height: 20vh;
@@ -76,6 +84,9 @@ html, body, .scale_wrapper_content {
   background-color: green;
 }
 
+/**********************/
+/*PROFILE INFO STYLES*/
+/********************/
 .profile_edit_title {
   margin-top: 5vh;
   margin-bottom: 1vh;
@@ -157,7 +168,9 @@ html, body, .scale_wrapper_content {
   background-color: rgb(134, 43, 43);
 }
 
-/**/
+/********************************/
+/*PROFILE MIDDLE SECTION STYLES*/
+/******************************/
 .profile_middle_section {
   margin-top: 3vh;
   display: flex;
@@ -184,8 +197,6 @@ html, body, .scale_wrapper_content {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
-
-
 .hours_worked_main_title {
   margin:0vh;
 }
@@ -200,7 +211,9 @@ html, body, .scale_wrapper_content {
   color: aqua;
 }
 
-/**/
+/*******************************/
+/*PROFILE RIGHT SECTION STYLES*/
+/*****************************/
 .profile_right_section {
   flex:1;
   display: flex;

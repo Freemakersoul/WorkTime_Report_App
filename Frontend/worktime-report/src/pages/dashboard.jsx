@@ -2,9 +2,13 @@ import React from 'react';
 // Reports.jsx
 const Dashboard = () => {
   return (
-    <div>
-      <h2>Relatórios</h2>
-      <p>Este é o conteúdo da página de relatórios.</p>
+    <div className="dashboard_content">
+      <div className="top_section">
+        <div></div>
+      </div>
+      <div className="down_section">
+
+      </div>
     </div>
   );
 };

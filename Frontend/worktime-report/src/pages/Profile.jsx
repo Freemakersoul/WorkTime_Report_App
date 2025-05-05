@@ -23,15 +23,15 @@ const Profile = () => {
       setUserName(user.name);
       setUserEmail(user.email);
 
-      // REQUEST TO GET CURRENT PHOTO PROFILE
+      // REQUEST TO GET CURRENT USER PROFILE DATA
       const fetchUserData = async () => {
         try {
           const response = await axios.get(`http://localhost:8000/get-user/${user.id}`);
           const userData = response.data;
 
-          // Armazenar a senha apenas internamente (não exibir no frontend)
+          
           if (userData.password) {
-            setUserPassword(userData.password); // Aqui, a senha será salva no estado
+            setUserPassword(userData.password); 
           }
 
           // CHECK IF USER-DATA HAS PHOTO_URL AND UPDATE THE STATE 
@@ -51,7 +51,7 @@ const Profile = () => {
           const response = await axios.get(`http://localhost:8000/get-vacation-balance/${user.id}`);
           if (response.data.vacation_balances && response.data.vacation_balances.length > 0) {
             const sorted = response.data.vacation_balances.sort((a, b) => b.year - a.year);
-            setVacationData(sorted[0]); // Pega o saldo de férias mais recente
+            setVacationData(sorted[0]); // get the most recent vacation balance
           }
         } catch (error) {
           console.error('Erro ao buscar saldo de férias:', error);
@@ -70,12 +70,15 @@ const Profile = () => {
     // GET ROLE OPTIONS 
     const fetchRoles = async () => {
       try {
-        const response = await axios.get('http://localhost:8000/get-role-values'); // BACKEND URL
-        setRoles(response.data.roles); 
+        const response = await axios.get('http://localhost:8000/get-role-values'); 
+        if (response.data && Array.isArray(response.data.roles)) {
+          setRoles(response.data.roles);
+        }
       } catch (error) {
         console.error('Error retrieving role options.', error);
       }
     };
+
     fetchRoles();
   }, []);
 
@@ -112,7 +115,7 @@ const Profile = () => {
 
       console.log('Updated user data:', response.data);
       alert('Profile sucessfully updated!');
-      setIsEditing(false); // INFO MODE
+      setIsEditing(false); // TO BE ON INFO MODE
 
       // UDATE USER PHOTO
       if (response.data.photo_url) {
@@ -162,17 +165,17 @@ const Profile = () => {
       wrapper.style.transform = `scale(${scale})`;
     };
   
-    // Inicializa o scale
+    // Inicialize scale
     scaleToFit();
   
-    // Observa mudanças no tamanho do content
+    // Check changes of the size of the content
     const resizeObserver = new ResizeObserver(() => {
       scaleToFit();
     });
   
     if (content) resizeObserver.observe(content);
   
-    // Fallback pro resize da janela
+    // Fallbackto resize the window
     window.addEventListener("resize", scaleToFit);
   
     return () => {
@@ -185,9 +188,11 @@ const Profile = () => {
     <div className="scale_wrapper_content">
       <div id="scale_wrapper">
         <div className="profile_content">
+          {/* PROFILE LEFT SECTION */}
           <div className="profile_left_section">
               <img src={profilePhotoUrl || defaultProfilePhoto} alt="profile photo" className="profile_photo"/>
-
+            {/* PROFILE INFO VIEW MODE IF ISNT EDITING, 
+              IF IS EDITING CHANGES TO EDIT PROFILE VIEW MODE  */}
             {!isEditing ? (
               <div className="profile_info_view">
                 <div>
@@ -267,7 +272,8 @@ const Profile = () => {
           </div>
 
           <div className="divider_left"></div>
-
+          
+          {/* PROFILE MIDDLE SECTION */}
           <div className="profile_middle_section">
             <img src={clock} alt="clock photo" className="clock_photo"/>
             <div className="hours_worked_main_info">
@@ -285,6 +291,7 @@ const Profile = () => {
 
           <div className="divider_right"></div>
 
+          {/* PROFILE RIGHT SECTION */}
           <div className="profile_right_section">
             <img src={vacations} alt="calendar photo" className="vacations_photo"/>
             <div className="vacations_info_content">

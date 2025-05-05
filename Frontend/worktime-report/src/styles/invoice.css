@@ -1,0 +1,70 @@
+.invoice_content {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  box-sizing: border-box;
+}
+
+.left_section {
+  flex:1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.client_select_section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.client_select{
+  margin-top: 4vh;
+  margin-right: 16vh;
+  font-size: 2.5vh;
+}
+
+.left_section label {
+  font-weight: bold;
+}
+
+.left_section select {
+  margin: 2vh 0;
+  margin-right: 14vh;
+  padding: 0.5vh;
+  width: 20vh;
+  border-radius: 1vh;
+}
+
+.client_summary {
+  margin-left: 16vh;
+  margin-top: 2vh;
+  width: 50vh;
+  font-size: 2.5vh;
+}
+
+.client_summary img {
+  height: 18vh;
+  border-radius: 20%;
+}
+
+.right_section {
+  flex:1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.right_section p {
+  margin-top: 2vh;
+  margin-bottom: 4vh;
+  width: 45vh;
+}
+
+.right_section img {
+  margin-top: 1vh;
+  height: 16vh;
+  border-radius: 20%;
+}

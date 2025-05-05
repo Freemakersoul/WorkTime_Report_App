@@ -51,10 +51,13 @@ class UserCreateRequest(BaseModel):
 @app.post("/create-user")
 async def create_user(user: UserCreateRequest):
     try:
+        
+        # Getting Bearer acess token from dynamics
         token = get_access_token()
         if not token:
             raise HTTPException(status_code=400, detail="Unable to obtain acess token")
         
+        # Data format to send and receive the data expected (JSON)
         headers = {
             "Authorization": f"Bearer {token}",
             "Content-Type": "application/json",
@@ -73,11 +76,11 @@ async def create_user(user: UserCreateRequest):
         "overriddencreatedon": datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%SZ') 
         }
 
-        # Sending data to Dynamics 365 API
+        # Send user data to Dynamics 365 API url
         dynamics_url = f"{DYNAMICS_URL}/api/data/v9.2/cr6ca_employees"
         response = requests.post(dynamics_url, json=data, headers=headers)
 
-        if response.status_code in [201, 204]:
+        if response.status_code in [200,201,204]:
             # Trying to extract the systemuserid from header "OData-EntityId"
             entity_id = response.headers.get("OData-EntityId")
             cr6ca_employeeid = None
@@ -110,24 +113,28 @@ class LoginRequest(BaseModel):
 @app.post("/login")
 async def login_user(login_data: LoginRequest):
     try:
+        # Getting Bearer acess token from dynamics
         token = get_access_token()
         if not token:
             raise HTTPException(status_code=400, detail="Invalid token access")
 
+        # Data format to send and receive the data expected (JSON)
         headers = {
             "Authorization": f"Bearer {token}",
             "Content-Type": "application/json",
             "Accept": "application/json",
         }
 
-        # Retrieving user from Dynamics filtered by email
+        # Retrieving user from Dynamics filtered by email (URL)
         query = f"$filter=cr6ca_email eq '{login_data.email}'"
         url = f"{DYNAMICS_URL}/api/data/v9.2/cr6ca_employees?{query}"
 
         response = requests.get(url, headers=headers)
 
-        if response.status_code == 200:
+        if response.status_code in [200,201,204]:
             results = response.json().get("value", [])
+            
+            # User verification
             if not results:
                 raise HTTPException(status_code=401, detail="User not found")
 
@@ -160,19 +167,23 @@ async def login_user(login_data: LoginRequest):
 @app.get("/get-user/{cr6ca_employeeid}")
 async def get_user(cr6ca_employeeid: str):
     try:
+        # Getting Bearer acess token from dynamics
         token = get_access_token()
         if not token:
             raise HTTPException(status_code=400, detail="Invalid acess token")
 
+        # Data format to send and receive the data expected (JSON)
         headers = {
             "Authorization": f"Bearer {token}",
             "Accept": "application/json"
         }
 
+        # Fetch user data from Dynamics (URL)
         url = f"{DYNAMICS_URL}/api/data/v9.2/cr6ca_employees({cr6ca_employeeid})"
         response = requests.get(url, headers=headers)
 
-        if response.status_code == 200:
+        # If OK return user data 
+        if response.status_code in [200,201,204]:
             user = response.json()
             photo_base64 = user.get("cr6ca_photo")
 
@@ -196,19 +207,23 @@ async def get_user(cr6ca_employeeid: str):
 @app.get("/get-all-users")
 async def get_all_users():
     try:
+        # Getting Bearer acess token from dynamics
         token = get_access_token()
         if not token:
             raise HTTPException(status_code=400, detail="Invalid access token")
 
+        # Data format to send and receive the data expected (JSON)
         headers = {
             "Authorization": f"Bearer {token}",
             "Accept": "application/json"
         }
 
+        # Fetch users data (URL)
         url = f"{DYNAMICS_URL}/api/data/v9.2/cr6ca_employees"
         response = requests.get(url, headers=headers)
 
-        if response.status_code == 200:
+        # If OK return user data 
+        if response.status_code in [200,201,204]:
             data = response.json().get("value", [])
             users = []
 
@@ -243,10 +258,12 @@ async def update_user(
     file: Optional[UploadFile] = File(None)
 ):
     try:
+        # Getting Bearer acess token from dynamics
         token = get_access_token()
         if not token:
             raise HTTPException(status_code=400, detail="Invalid acess token")
         
+        # Data format to send and receive the data expected (JSON)
         headers = {
             "Authorization": f"Bearer {token}",
             "Content-Type": "application/json",
@@ -272,10 +289,12 @@ async def update_user(
             # Content encoded
             data["cr6ca_photo"] = encoded_string
 
+        # Update users data (URL)
         dynamics_url = f"{DYNAMICS_URL}/api/data/v9.2/cr6ca_employees({cr6ca_employeeid})"
         response = requests.patch(dynamics_url, json=data, headers=headers)
 
-        if response.status_code in [200, 204]:
+        # If OK update user data 
+        if response.status_code in [200,201,204]:
             return {
                 "message": "User successfully updated",
                 "user_id": cr6ca_employeeid,
@@ -294,20 +313,24 @@ async def update_user(
 @app.delete("/delete-user/{cr6ca_employeeid}")
 async def delete_user(cr6ca_employeeid: str):
     try:
+        
+        # Getting Bearer acess token from dynamics
         token = get_access_token()
         if not token:
             raise HTTPException(status_code=400, detail="Invalid access token")
 
+        # Data format to send and receive the data expected (JSON)
         headers = {
             "Authorization": f"Bearer {token}",
             "Accept": "application/json"
         }
 
-        # URL da entidade
+        # Delete user data (URL)
         url = f"{DYNAMICS_URL}/api/data/v9.2/cr6ca_employees({cr6ca_employeeid})"
         response = requests.delete(url, headers=headers)
 
-        if response.status_code in [204, 200]:
+        # If OK delete user data 
+        if response.status_code in [200,201,204]:
             return {"message": "Utilizador eliminado com sucesso!"}
         else:
             raise HTTPException(status_code=response.status_code, detail=f"Erro ao eliminar utilizador: {response.text}")
@@ -322,18 +345,26 @@ async def delete_user(cr6ca_employeeid: str):
 @app.get("/get-role-values")
 async def get_role_values():
     try:
+        # Getting Bearer acess token from dynamics
         token = get_access_token()
-        url = f"{DYNAMICS_URL}/api/data/v9.2/cr6ca_memberroles?$select=cr6ca_memberroleid,cr6ca_name"
+        if not token:
+            raise HTTPException(status_code=400, detail="Invalid access token")
 
+        # Data format to send and receive the data expected (JSON)
         headers = {
             "Authorization": f"Bearer {token}",
             "Accept": "application/json"
         }
+        
+        # Fetch member role options data (URL)
+        url = f"{DYNAMICS_URL}/api/data/v9.2/cr6ca_memberroles?$select=cr6ca_memberroleid,cr6ca_name"
 
         response = requests.get(url, headers=headers)
+        
         if response.status_code != 200:
             raise HTTPException(status_code=500, detail="Error retrieving role options.")
 
+        # If OK return role options data 
         roles = []
         records = response.json().get("value", [])
 
@@ -353,13 +384,17 @@ async def get_role_values():
 #############################
 @app.get("/get-vacation-balance/{user_id}")
 async def get_vacation_balance(user_id: str):
-    try:
+    try: 
+        # Getting Bearer acess token from dynamics
         token = get_access_token()
 
         if not user_id:
             raise HTTPException(status_code=400, detail="User ID is required")
-
+        
+        # Fetch user vacation balance data (URL)
         url = f"{DYNAMICS_URL}/api/data/v9.2/cr6ca_vacationbalances?$select=cr6ca_year,cr6ca_availabledays,cr6ca_carriedoverdays&$filter=_cr6ca_userid_value eq '{user_id}'"
+        
+        # Data format to send and receive the data expected (JSON)
         headers = {
             "Authorization": f"Bearer {token}",
             "Accept": "application/json"
@@ -375,6 +410,7 @@ async def get_vacation_balance(user_id: str):
         if not data:
             return {"message": "No vacation balance found for this user."}
 
+        # If OK return vacation balance data 
         vacation_balances = []
         for item in data:
             vacation_balances.append({
@@ -401,10 +437,12 @@ class VacationCreateRequest(BaseModel):
 @app.post("/create-vacation")
 async def create_vacation(request: VacationCreateRequest):
     try:
+        # Getting Bearer acess token from dynamics
         token = get_access_token()
         if not token:
             raise HTTPException(status_code=400, detail="Invalid access token")
 
+        # Data format to send and receive the data expected (JSON)
         headers = {
             "Authorization": f"Bearer {token}",
             "Content-Type": "application/json",
@@ -413,7 +451,8 @@ async def create_vacation(request: VacationCreateRequest):
             "Accept": "application/json",
             "Prefer": "odata.include-annotations=*"
         }
-
+        
+        # Data format to send data to dynamics (JSON)      
         data = {
             "cr6ca_startdate": request.start_date,
             "cr6ca_enddate": request.end_date,
@@ -422,13 +461,14 @@ async def create_vacation(request: VacationCreateRequest):
             "cr6ca_UserID@odata.bind": f"/cr6ca_employees({request.user_id})"
         }
 
-        # Remove valores None
+        # Remove None values
         data = {k: v for k, v in data.items() if v is not None}
 
         dynamics_url = f"{DYNAMICS_URL}/api/data/v9.2/cr6ca_vacations"
         response = requests.post(dynamics_url, json=data, headers=headers)
 
-        if response.status_code in [201, 204]:
+        # If OK send vacation request data 
+        if response.status_code in [200,201,204]:
             entity_id = response.headers.get("OData-EntityId")
             vacation_id = None
             if entity_id:
@@ -454,10 +494,12 @@ async def create_vacation(request: VacationCreateRequest):
 @app.get("/get-all-vacations")
 async def get_all_vacations():
     try:
+        # Getting Bearer acess token from dynamics
         token = get_access_token()
         if not token:
             raise HTTPException(status_code=400, detail="Invalid access token")
 
+        # Data format to send and receive the data expected (JSON)
         headers = {
             "Authorization": f"Bearer {token}",
             "Accept": "application/json",
@@ -470,7 +512,8 @@ async def get_all_vacations():
 
         response = requests.get(url, headers=headers)
 
-        if response.status_code == 200:
+        # If OK return user vacation request data 
+        if response.status_code in [200,201,204]:
             raw_data = response.json().get("value", [])
             formatted = []
 
@@ -510,10 +553,12 @@ class VacationStatusUpdateRequest(BaseModel):
 @app.patch("/update-vacation-status/{cr6ca_vacationid}")
 async def update_vacation_status(cr6ca_vacationid: str, data: VacationStatusUpdateRequest):
     try:
+        # Getting Bearer acess token from dynamics
         token = get_access_token()
         if not token:
             raise HTTPException(status_code=400, detail="Invalid access token")
 
+        # Data format to send and receive the data expected (JSON)
         headers = {
             "Authorization": f"Bearer {token}",
             "Content-Type": "application/json",
@@ -529,17 +574,17 @@ async def update_vacation_status(cr6ca_vacationid: str, data: VacationStatusUpda
         if data.reason_if_rejected:
             update_data["cr6ca_reasonifrejected"] = data.reason_if_rejected
 
-        # Atualiza o status da solicitação de férias
+        # Update vacation status (URL)
         url = f"{DYNAMICS_URL}/api/data/v9.2/cr6ca_vacations({cr6ca_vacationid})"
         response = requests.patch(url, json=update_data, headers=headers)
 
-        if response.status_code not in [200, 204]:
+        if response.status_code not in [200,201,204]:
             raise HTTPException(status_code=response.status_code, detail=f"Error updating vacation status: {response.text}")
 
-        ### NOVO: Se for aprovado, atualiza saldo de férias ###
+        # If approved, updates annual leave available days #
         if data.vacation_status == 313330001:  # Approved
             
-            # 1. Buscar detalhes da solicitação de férias (start, end, half day, user)
+            # 1. Fetch vacation request details (start, end, half day, user)
             vacation_url = f"{DYNAMICS_URL}/api/data/v9.2/cr6ca_vacations({cr6ca_vacationid})?$select=cr6ca_startdate,cr6ca_enddate,cr6ca_halfday,_cr6ca_userid_value"
             vacation_resp = requests.get(vacation_url, headers=headers)
 
@@ -552,7 +597,7 @@ async def update_vacation_status(cr6ca_vacationid: str, data: VacationStatusUpda
             half_day = vacation.get("cr6ca_halfday", 1.0)
             user_id = vacation["_cr6ca_userid_value"]
 
-            # 2. Buscar o saldo atual do utilizador
+            # 2. Fetch current user vacation balance
             balance_url = f"{DYNAMICS_URL}/api/data/v9.2/cr6ca_vacationbalances?$filter=_cr6ca_userid_value eq {user_id}&$orderby=cr6ca_year desc&$top=1"
             balance_resp = requests.get(balance_url, headers=headers)
 
@@ -567,7 +612,7 @@ async def update_vacation_status(cr6ca_vacationid: str, data: VacationStatusUpda
             balance_id = balance["cr6ca_vacationbalanceid"]
             available_days = balance["cr6ca_availabledays"]
 
-            # 3. Calcular quantos dias foram pedidos
+            # 3. Calculate how many days were requested
             total_days = (end_date - start_date).days + 1
             if half_day == 0.5:
                 total_days = 0.5
@@ -580,15 +625,16 @@ async def update_vacation_status(cr6ca_vacationid: str, data: VacationStatusUpda
             if new_available_days < 0:
                 new_available_days = 0  
 
-            # 4. Atualizar o saldo
+            # 4. Update user vacation balance
             update_balance_data = {
                 "cr6ca_availabledays": new_available_days
             }
 
+            # Update vacation balance (URL)
             balance_update_url = f"{DYNAMICS_URL}/api/data/v9.2/cr6ca_vacationbalances({balance_id})"
             balance_update_resp = requests.patch(balance_update_url, json=update_balance_data, headers=headers)
 
-            if balance_update_resp.status_code not in [200, 204]:
+            if balance_update_resp.status_code not in [200,201,204]:
                 raise HTTPException(status_code=balance_update_resp.status_code, detail="Error updating vacation balance")
 
         return {"message": "Vacation status and balance updated successfully."}
@@ -603,12 +649,12 @@ async def update_vacation_status(cr6ca_vacationid: str, data: VacationStatusUpda
 @app.get("/get-vacation-status-by-user-id/{user_id}")
 async def get_vacation_status_by_user_id(user_id: str):
     try:
+        # Getting Bearer acess token from dynamics
         token = get_access_token()
-
         if not token:
             raise HTTPException(status_code=400, detail="Invalid access token")
 
-        # Cabeçalhos da requisição
+        # Data format to send and receive the data expected (JSON)
         headers = {
             "Authorization": f"Bearer {token}",
             "Accept": "application/json",
@@ -616,12 +662,13 @@ async def get_vacation_status_by_user_id(user_id: str):
             "OData-Version": "4.0",
         }
 
-        # Busca as férias mais recentes do utilizador, ordenadas pela data de criação (descendente)
+        # Fetch user vacation status (URL)
         url = f"{DYNAMICS_URL}/api/data/v9.2/cr6ca_vacations?$filter=_cr6ca_userid_value eq {user_id}&$orderby=createdon desc&$top=1&$select=cr6ca_vacationstatus,cr6ca_reasonifrejected,cr6ca_vacationid"
 
         response = requests.get(url, headers=headers)
 
-        if response.status_code == 200:
+        # If OK return user vacation status data 
+        if response.status_code in [200,201,204]:
             result = response.json()
 
             if result.get("value"):
@@ -651,19 +698,23 @@ async def get_vacation_status_by_user_id(user_id: str):
 @app.delete("/delete-vacation/{cr6ca_vacationid}")
 async def delete_vacation(cr6ca_vacationid: str):
     try:
+        # Getting Bearer acess token from dynamics
         token = get_access_token()
         if not token:
             raise HTTPException(status_code=400, detail="Invalid access token")
 
+        # Data format to send and receive the data expected (JSON)
         headers = {
             "Authorization": f"Bearer {token}",
             "Accept": "application/json",
         }
 
+        # Delet user vacation request (URL)
         dynamics_url = f"{DYNAMICS_URL}/api/data/v9.2/cr6ca_vacations({cr6ca_vacationid})"
         response = requests.delete(dynamics_url, headers=headers)
 
-        if response.status_code == 204:
+        # If OK delete user vacation request data 
+        if response.status_code in [200,201,204]:
             return {"message": "Vacation request deleted successfully!"}
         elif response.status_code == 404:
             raise HTTPException(status_code=404, detail="Vacation request not found")
@@ -683,10 +734,12 @@ async def delete_vacation(cr6ca_vacationid: str):
 @app.get("/get-public-holidays")
 async def get_public_holidays():
     try:
+        # Getting Bearer acess token from dynamics
         token = get_access_token()
         if not token:
             raise HTTPException(status_code=400, detail="Invalid access token")
 
+        # Data format to send and receive the data expected (JSON)
         headers = {
             "Authorization": f"Bearer {token}",
             "Accept": "application/json",
@@ -694,10 +747,12 @@ async def get_public_holidays():
             "OData-Version": "4.0",
         }
 
+        # Fetch public holidays (URL)
         url = f"{DYNAMICS_URL}/api/data/v9.2/cr6ca_publicholidaies?$select=cr6ca_description,cr6ca_holidaydate"
         response = requests.get(url, headers=headers)
 
-        if response.status_code == 200:
+        # If OK return public holidays data 
+        if response.status_code in [200,201,204]:
             result = response.json()
             holidays = result.get("value", [])
 
@@ -718,10 +773,12 @@ async def get_public_holidays():
 @app.get("/get-account-options")
 async def get_account_options():
     try:
+        # Getting Bearer acess token from dynamics
         token = get_access_token()
         if not token:
             raise HTTPException(status_code=400, detail="Invalid access token")
 
+        # Data format to send and receive the data expected (JSON)
         headers = {
             "Authorization": f"Bearer {token}",
             "Accept": "application/json",
@@ -729,12 +786,13 @@ async def get_account_options():
             "OData-Version": "4.0",
         }
 
-        # Traz os campos name (nome da conta) e accountid (GUID)
+         # Fetch clients list (URL)
         url = f"{DYNAMICS_URL}/api/data/v9.2/accounts?$select=name,accountid"
 
         response = requests.get(url, headers=headers)
 
-        if response.status_code == 200:
+        # If OK return clients list data 
+        if response.status_code in [200,201,204]:
             accounts = response.json().get("value", [])
             return [
                 {"name": acc["name"], "id": acc["accountid"]}
@@ -752,10 +810,12 @@ async def get_account_options():
 @app.get("/get-activitytype-options")
 async def get_activitytype_options():
     try:
+        # Getting Bearer acess token from dynamics
         token = get_access_token()
         if not token:
             raise HTTPException(status_code=400, detail="Invalid access token")
 
+        # Data format to send and receive the data expected (JSON)
         headers = {
             "Authorization": f"Bearer {token}",
             "Accept": "application/json",
@@ -763,12 +823,13 @@ async def get_activitytype_options():
             "OData-Version": "4.0",
         }
 
-        # Endpoint para buscar tipos de atividade
+        # Fetch activity types list (URL)
         url = f"{DYNAMICS_URL}/api/data/v9.2/cr6ca_activitytypes?$select=cr6ca_name,cr6ca_activitytypeid"
 
+        # If OK return activity types list data 
         response = requests.get(url, headers=headers)
 
-        if response.status_code == 200:
+        if response.status_code in [200,201,204]:
             items = response.json().get("value", [])
             return [
                 {"name": item["cr6ca_name"], "id": item["cr6ca_activitytypeid"]}
@@ -786,10 +847,12 @@ async def get_activitytype_options():
 @app.get("/get-project-options")
 async def get_project_options():
     try:
+        # Getting Bearer acess token from dynamics
         token = get_access_token()
         if not token:
             raise HTTPException(status_code=400, detail="Invalid access token")
 
+        # Data format to send and receive the data expected (JSON)
         headers = {
             "Authorization": f"Bearer {token}",
             "Accept": "application/json",
@@ -797,12 +860,13 @@ async def get_project_options():
             "OData-Version": "4.0",
         }
 
-        # Endpoint para buscar projetos
+        # Fetch projects list (URL)
         url = f"{DYNAMICS_URL}/api/data/v9.2/cr6ca_projects?$select=cr6ca_name,cr6ca_projectid"
 
         response = requests.get(url, headers=headers)
 
-        if response.status_code == 200:
+        # If OK return projects list data 
+        if response.status_code in [200,201,204]:
             items = response.json().get("value", [])
             return [
                 {"name": item["cr6ca_name"], "id": item["cr6ca_projectid"]}
@@ -820,10 +884,12 @@ async def get_project_options():
 @app.get("/get-projecttype-options")
 async def get_projecttype_options():
     try:
+        # Getting Bearer acess token from dynamics
         token = get_access_token()
         if not token:
             raise HTTPException(status_code=400, detail="Invalid access token")
 
+        # Data format to send and receive the data expected (JSON)
         headers = {
             "Authorization": f"Bearer {token}",
             "Accept": "application/json",
@@ -831,12 +897,13 @@ async def get_projecttype_options():
             "OData-Version": "4.0",
         }
 
-        # Endpoint para buscar tipos de projeto
+        # Fetch project types list (URL)
         url = f"{DYNAMICS_URL}/api/data/v9.2/cr6ca_projecttypes?$select=cr6ca_name,cr6ca_projecttypeid"
 
         response = requests.get(url, headers=headers)
 
-        if response.status_code == 200:
+        # If OK return project types list data 
+        if response.status_code in [200,201,204]:
             items = response.json().get("value", [])
             return [
                 {"name": item["cr6ca_name"], "id": item["cr6ca_projecttypeid"]}
@@ -854,10 +921,12 @@ async def get_projecttype_options():
 @app.get("/get-task-options")
 async def get_task_options():
     try:
+        # Getting Bearer acess token from dynamics
         token = get_access_token()
         if not token:
             raise HTTPException(status_code=400, detail="Invalid access token")
 
+        # Data format to send and receive the data expected (JSON)
         headers = {
             "Authorization": f"Bearer {token}",
             "Accept": "application/json",
@@ -865,12 +934,13 @@ async def get_task_options():
             "OData-Version": "4.0",
         }
 
-        # Busca tarefas (campo subject e activityid)
+        # Fetch tasks list (URL)
         url = f"{DYNAMICS_URL}/api/data/v9.2/tasks?$select=subject,activityid"
 
         response = requests.get(url, headers=headers)
 
-        if response.status_code == 200:
+        # If OK return tasks list data 
+        if response.status_code in [200,201,204]:
             items = response.json().get("value", [])
             return [
                 {"name": item["subject"], "id": item["activityid"]}
@@ -888,10 +958,12 @@ async def get_task_options():
 @app.get("/get-timetype-options")
 async def get_timetype_options():
     try:
+        # Getting Bearer acess token from dynamics
         token = get_access_token()
         if not token:
             raise HTTPException(status_code=400, detail="Invalid access token")
 
+        # Data format to send and receive the data expected (JSON)
         headers = {
             "Authorization": f"Bearer {token}",
             "Accept": "application/json",
@@ -899,12 +971,13 @@ async def get_timetype_options():
             "OData-Version": "4.0",
         }
 
-        # Endpoint para buscar tipos de tempo
+        # Fetch time types list (URL)
         url = f"{DYNAMICS_URL}/api/data/v9.2/cr6ca_timetypes?$select=cr6ca_name,cr6ca_timetypeid"
 
         response = requests.get(url, headers=headers)
 
-        if response.status_code == 200:
+        # If OK return time types list data 
+        if response.status_code in [200,201,204]:
             items = response.json().get("value", [])
             return [
                 {"name": item["cr6ca_name"], "id": item["cr6ca_timetypeid"]}
@@ -935,21 +1008,23 @@ class TimeReportInput(BaseModel):
 @app.post("/create-timereport")
 async def create_timereport(input: TimeReportInput):
     try:
-        
+        # Getting Bearer acess token from dynamics
         token = get_access_token()
         if not token:
             raise HTTPException(status_code=400, detail="Invalid access token")
 
+        # Data format to send and receive the data expected (JSON)
         headers = {
             "Authorization": f"Bearer {token}",
             "Accept": "application/json",
             "Content-Type": "application/json",
         }
 
+        # Create time report (URL)
         url = f"{DYNAMICS_URL}/api/data/v9.2/cr6ca_timereports"
         logging.debug(f"URL de requisição: {url}")
 
-        # Dados a serem enviados para o Dynamics
+        # Data to be sent to Dynamics
         data = {
             "cr6ca_ActivityTypeID@odata.bind": f"/cr6ca_activitytypes({input.cr6ca_activitytypeid})",  # Atividade
             "cr6ca_AccountID@odata.bind": f"/accounts({input.accountid})",  # Conta
@@ -965,7 +1040,8 @@ async def create_timereport(input: TimeReportInput):
 
         response = requests.post(url, headers=headers, json=data)
 
-        if response.status_code in [201,201,204]:
+        # If OK send time report data 
+        if response.status_code in [200,201,204]:
             return {"status": "success", "message": "Timereport created successfully"}
         else:
             logging.error(f"Erro na requisição para o Dynamics: {response.status_code} - {response.text}")
@@ -982,10 +1058,12 @@ async def create_timereport(input: TimeReportInput):
 @app.get("/get-user-timereports")
 async def get_user_timeline(employee_id: Optional[str] = None, createdon: Optional[str] = None):
     try:
+        # Getting Bearer acess token from dynamics
         token = get_access_token()
         if not token:
             raise HTTPException(status_code=400, detail="Invalid access token")
 
+        # Data format to send and receive the data expected (JSON)
         headers = {
             "Authorization": f"Bearer {token}",
             "Accept": "application/json",
@@ -993,6 +1071,7 @@ async def get_user_timeline(employee_id: Optional[str] = None, createdon: Option
             "Prefer": "odata.include-annotations=*"
         }
 
+        # Fetch time report (URL)
         base_url = f"{DYNAMICS_URL}/api/data/v9.2/cr6ca_timereports"
         select = (
             "$select=cr6ca_comment,cr6ca_hoursworked,createdon,cr6ca_reportstatus"
@@ -1008,22 +1087,23 @@ async def get_user_timeline(employee_id: Optional[str] = None, createdon: Option
             "cr6ca_TimeTypeID($select=cr6ca_name)"
         )
 
-        # Se o `employee_id` for fornecido, filtra por ele
+        # If `employee_id` is provided, filter by it
         if employee_id:
             filter_clause = f"$filter=cr6ca_EmployeeID/cr6ca_employeeid eq {employee_id}"
             url = f"{base_url}?{select}&{filter_clause}&{expand}"
 
         else:
-            # Se não tiver filtro, vai retornar todos os relatórios
+            # If has no filter, return all time reports
             url = f"{base_url}?{select}&$orderby=createdon desc&{expand}"
 
-        # Se `createdon` for passado, pode-se adicionar o filtro para a data
+        # If `createdon` is provided, can add filter to date
         if createdon:
             url += f"&$filter=createdon ge {createdon}"
 
         response = requests.get(url, headers=headers)
 
-        if response.status_code == 200:
+        # If OK return specific time reports or all time reports data 
+        if response.status_code in [200,201,204]:
             return JSONResponse(content=response.json())
         else:
             logging.error(f"Erro ao buscar timereports: {response.status_code} - {response.text}")
@@ -1039,23 +1119,24 @@ async def get_user_timeline(employee_id: Optional[str] = None, createdon: Option
 @app.patch("/update-timereport/{cr6ca_timereportid}")
 async def update_timereport(cr6ca_timereportid: str, input: TimeReportInput):
     try:
-        
+        # Getting Bearer acess token from dynamics
         token = get_access_token()
         if not token:
             raise HTTPException(status_code=400, detail="Invalid access token")
         logging.debug(f"Token de acesso: {token}")
 
+        # Data format to send and receive the data expected (JSON)
         headers = {
             "Authorization": f"Bearer {token}",
             "Accept": "application/json",
             "Content-Type": "application/json",
         }
 
-        # URL para atualizar o timereport específico
+        # Update time report (URL)
         url = f"{DYNAMICS_URL}/api/data/v9.2/cr6ca_timereports({cr6ca_timereportid})"
         logging.debug(f"URL de requisição para atualizar o relatório: {url}")
 
-        # Dados a serem atualizados
+        # Data to update
         data = {
             "cr6ca_ActivityTypeID@odata.bind": f"/cr6ca_activitytypes({input.cr6ca_activitytypeid})",  # Atividade
             "cr6ca_AccountID@odata.bind": f"/accounts({input.accountid})",  # Conta
@@ -1071,7 +1152,8 @@ async def update_timereport(cr6ca_timereportid: str, input: TimeReportInput):
         # Envia a requisição para atualizar o relatório
         response = requests.patch(url, headers=headers, json=data)
 
-        if response.status_code == 204:  # 204 indica sucesso na atualização
+        # If OK update time reports data 
+        if response.status_code in [200,201,204]:  # 204 indica sucesso na atualização
             return {"status": "success", "message": "Time report updated successfully"}
         else:
             logging.error(f"Erro na requisição para o Dynamics: {response.status_code} - {response.text}")
@@ -1090,17 +1172,19 @@ class ReportStatusUpdate(BaseModel):
 @app.patch("/update-reportstatus/{cr6ca_timereportid}")
 async def update_report_status(cr6ca_timereportid: str, input: ReportStatusUpdate):
     try:
-
+        # Getting Bearer acess token from dynamics
         token = get_access_token()
         if not token:
             raise HTTPException(status_code=400, detail="Invalid access token")
 
+        # Data format to send and receive the data expected (JSON)
         headers = {
             "Authorization": f"Bearer {token}",
             "Accept": "application/json",
             "Content-Type": "application/json",
         }
 
+        # Update time report status (URL)
         url = f"{DYNAMICS_URL}/api/data/v9.2/cr6ca_timereports({cr6ca_timereportid})"
 
         data = {
@@ -1109,7 +1193,8 @@ async def update_report_status(cr6ca_timereportid: str, input: ReportStatusUpdat
 
         response = requests.patch(url, headers=headers, json=data)
 
-        if response.status_code == 204:
+        # If OK update time reports status data 
+        if response.status_code in [200,201,204]:
             return {"status": "success", "message": "Report status updated successfully"}
         else:
             logging.error(f"Erro na atualização de status: {response.status_code} - {response.text}")
@@ -1126,23 +1211,25 @@ async def update_report_status(cr6ca_timereportid: str, input: ReportStatusUpdat
 @app.delete("/delete-timereport/{cr6ca_timereportid}")
 async def delete_timereport(cr6ca_timereportid: str):
     try:
+        # Getting Bearer acess token from dynamics
         token = get_access_token()
         if not token:
             raise HTTPException(status_code=400, detail="Invalid access token")
 
+        # Data format to send and receive the data expected (JSON)
         headers = {
             "Authorization": f"Bearer {token}",
             "Accept": "application/json",
             "Content-Type": "application/json",
         }
 
-        # URL do Dynamics para deletar um registro específico com o campo cr6ca_timereportid
+        # Delete time report  (URL)
         url = f"{DYNAMICS_URL}/api/data/v9.2/cr6ca_timereports({cr6ca_timereportid})"
 
         response = requests.delete(url, headers=headers)
 
-        if response.status_code == 204:
-            # 204 significa que a exclusão foi bem-sucedida e não há conteúdo na resposta
+        # If OK delete time reports data 
+        if response.status_code in [200,201,204]:
             return {"status": "success", "message": "Time report deleted successfully"}
         else:
             logging.error(f"Erro ao deletar o time report: {response.status_code} - {response.text}")
@@ -1150,4 +1237,50 @@ async def delete_timereport(cr6ca_timereportid: str):
 
     except Exception as e:
         logging.error(f"Erro interno: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
+ 
+####################
+# GET INVOICE INFO #
+####################    
+@app.get("/get-invoices")
+async def get_invoices():
+    try:
+        # Getting Bearer access token from Dynamics
+        token = get_access_token()
+        if not token:
+            raise HTTPException(status_code=400, detail="Invalid access token")
+
+        # Data format to send and receive the data expected (JSON)
+        headers = {
+            "Authorization": f"Bearer {token}",
+            "Accept": "application/json",
+            "Prefer": "odata.include-annotations=*"
+        }
+
+        # Simple fields to select 
+        select_fields = (
+            "$select=cr6ca_amount,cr6ca_amountbase,cr6ca_duedate,cr6ca_issuedate"
+        )
+
+        # Restricted fields to select
+        expand_fields = (
+            "$expand="
+            "cr6ca_AccountID($select=name),"
+            "cr6ca_ProjectID($select=cr6ca_name)"
+        )
+
+        # Get invoice info  (URL)
+        url = f"{DYNAMICS_URL}/api/data/v9.2/cr6ca_invoices?{select_fields}&{expand_fields}"
+
+        response = requests.get(url, headers=headers)
+
+        # If OK return invoice data 
+        if response.status_code in [200, 201, 204]:
+            return JSONResponse(content=response.json())
+        else:
+            logging.error(f"Erro ao buscar invoices: {response.status_code} - {response.text}")
+            raise HTTPException(status_code=response.status_code, detail=response.text)
+
+    except Exception as e:
+        logging.error(f"Erro interno ao buscar invoices: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")

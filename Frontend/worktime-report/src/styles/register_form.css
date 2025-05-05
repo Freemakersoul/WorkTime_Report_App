@@ -1,8 +1,11 @@
+/*************************/
+/*  REGISTER FORM STYLES*/
+/***********************/
 html, body {
   margin: 0;
   padding: 0;
   height: 100%;
-  overflow-y: auto;  /* Permite rolagem vertical */
+  overflow-y: auto;  
   font-family: "Lato", sans-serif;
 }
 
@@ -41,9 +44,8 @@ html, body {
   transition: border 0.3s ease;
 }
 
-
 input {
-  width: 100%;  /* Faz os inputs ocuparem toda a largura disponível */
+  width: 100%;  
   padding: 1vh;
   font-size: 2vh;
   margin-bottom: 2vh;

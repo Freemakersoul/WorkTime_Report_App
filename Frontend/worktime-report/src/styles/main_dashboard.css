@@ -1,8 +1,15 @@
+/************************/
+/*MAIN DASHBOARD STYLES*/
+/**********************/
 .app_content {
   display: flex;
   flex-direction: column;
   justify-content: start;
 }
+
+/********************************/
+/*MAIN DASHBOARD SIDEBAR STYLES*/
+/******************************/
 
 .dashboard_container {
   display: flex;
@@ -12,7 +19,7 @@
 
 .main_layout {
   display: flex;
-  height: calc(100vh - 60px); /* ajusta conforme a altura da header */
+  height: calc(100vh - 60px); 
   justify-content: center;
   gap: 4vh;
   transition: gap 0.5s ease-in-out;
@@ -38,7 +45,7 @@
 .options {
   display: flex;
   flex-direction: column;
-  margin-top: 15vh;
+  margin-top: 12vh;
   gap: 5vh;
   align-items: flex-start;
   padding-left: 1vh;
@@ -81,6 +88,19 @@
   color: rgb(194, 7, 7);
 }
 
+.toggle_btn {
+  position: absolute;
+  top: 11vh;
+  left: 2.2vh;
+  z-index: 1000;
+  background: #2980b9;
+  color: white;
+  border: none;
+  padding: 0.5rem;
+  cursor: pointer;
+  font-size: clamp(1rem, 1.5vw, 1.25rem); 
+}
+
 .option_icon {
   font-size: clamp(1rem, 2vw, 1.5rem); 
   cursor: pointer;
@@ -96,6 +116,9 @@
   margin-bottom: 2vh;
 }
 
+/********************************/
+/*MAIN DASHBOARD CONTENT STYLES*/
+/******************************/
 .content {
   position: relative;
   width: 100%;
@@ -124,22 +147,13 @@
   overflow: auto;
 }
 
-.toggle_btn {
-  position: absolute;
-  top: 11vh;
-  left: 2.2vh;
-  z-index: 1000;
-  background: #2980b9;
-  color: white;
-  border: none;
-  padding: 0.5rem;
-  cursor: pointer;
-  font-size: clamp(1rem, 1.5vw, 1.25rem); 
-}
+/******************/
+/* MEDIA QUERIES */
+/****************/
 
-/**********************/
-/* Layout Responsivo */
-/**********************/
+/**********/
+/* 1200PX*/
+/********/
 
 @media (max-width: 1200px) {
   .main_layout {
@@ -184,6 +198,9 @@
   }
 }
 
+/*********/
+/* 992PX*/
+/*******/
 @media (max-width: 992px) {
   .sidebar {
     width: 18vw;
@@ -223,6 +240,9 @@
   }
 }
 
+/*********/
+/* 768PX*/
+/*******/
 @media (max-width: 768px) {
   .main_layout {
     gap: 3vw;
@@ -267,6 +287,9 @@
   }
 }
 
+/*********/
+/* 480PX*/
+/*******/
 @media (max-width: 480px) {
   .sidebar {
     width: 18vw;

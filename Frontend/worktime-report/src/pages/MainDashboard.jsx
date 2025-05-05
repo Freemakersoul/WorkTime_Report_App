@@ -46,6 +46,9 @@ const MainDashboard = () => {
       case "Profile":
         navigate("/dashboard/profile");
         break;
+      case "Invoice":
+        navigate("/dashboard/invoice");
+        break;
       default:
         break;
     }
@@ -73,6 +76,8 @@ const MainDashboard = () => {
               <li onClick={() => handlePageClick("Vacations")} className={selectedPage === "Vacations" ? "selected" : ""}><span className="option_icon" title="Vacations">📆</span><span className="label">Annual leave</span></li>
 
               <li onClick={() => handlePageClick("Profile")} className={selectedPage === "Profile" ? "selected" : ""}><span className="option_icon" title="Profile">🧑‍💼</span><span className="label">Profile</span></li>
+
+              <li onClick={() => handlePageClick("Invoice")} className={selectedPage === "Invoice" ? "selected" : ""}><span className="option_icon" title="Invoice">🧾</span><span className="label">Invoice</span></li>
 
               {userType === 313330001 && (
                 <li
