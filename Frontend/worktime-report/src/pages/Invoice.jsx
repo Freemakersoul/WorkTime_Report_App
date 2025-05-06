@@ -59,7 +59,7 @@ const Invoice = () => {
 
   return (
     <div className="invoice_content">
-      <div className="left_section">
+      <div className="invoice_left_section">
         <h1 className="main_title">Client Projects</h1>
         <label className="client_select" htmlFor="client-select">Select a Client:</label>
         <select
@@ -90,7 +90,7 @@ const Invoice = () => {
 
       <div className="divider"></div>
 
-      <div className="right_section">
+      <div className="invoice_right_section">
         <h1 className="main_title">Client Invoice Details</h1>
         {selectedInvoice ? (
           <div>

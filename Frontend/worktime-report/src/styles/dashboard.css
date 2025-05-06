@@ -1,0 +1,151 @@
+.dashboard_content {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+.dashboard_left_section, .dashboard_right_section {
+  flex:1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  overflow: hidden;
+}
+
+.top_left_section,
+.top_right_section {
+  flex: 1;
+  display: flex;
+  flex-direction: row;
+  align-items: flex-end; 
+  justify-content: flex-start;
+  margin-bottom: 7vh; 
+  margin-left : 3vh;
+  width: 80%;
+}
+
+.down_right_section {
+  flex: 1;
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start; 
+  justify-content: flex-start;
+  margin-top: 4vh;
+  margin-bottom: 3vh;
+  margin-left: 2.5vh;
+  width: 80%;
+}
+
+.down_left_section{
+  flex: 1;
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start; 
+  justify-content: flex-start;
+  margin-top: 7vh; 
+  margin-left : 2.5vh;
+  width: 80%;
+}
+
+/**/
+.clock {
+  margin-right: 2vh;
+  height: 18vh;
+  width:18vh;
+  border-radius: 50%;
+}
+
+.top_left_section p {
+  margin-bottom: 0.8vh;
+  margin-left : 0.5vw;
+  display: -webkit-box;
+  -webkit-line-clamp: 2; 
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/**/
+.down_left_section p {
+  margin-bottom: 0vh;
+  margin-top: 2vh;
+  margin-left : 2.5vh;
+  display: -webkit-box;
+  -webkit-line-clamp: 2; 
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.down_left_section label {
+  margin-bottom: 2vh;
+  margin-left : 2.5vh;
+  font-weight: bold;
+}
+
+.client_image {
+  height: 18vh;
+  width:18vh;
+  border-radius: 20%;
+}
+
+.horizontal-divider {
+  width: 80%; 
+  height: 0.7vh; 
+  background-color: rgba(255, 255, 255, 0.3);
+  margin: 2vh 0; 
+}
+
+/**/
+
+.top_right_section p {
+  margin-left : 1vw;
+  margin-bottom: 0vh;
+}
+
+.reports_icon {
+  height: 20vh;
+}
+
+/**/
+
+.down_right_section label {
+  margin-bottom: 2vh;
+  margin-left : 2.5vh;
+}
+
+.down_right_section p {
+  margin-bottom: 1vh;
+  margin-top: 2vh;
+  margin-left : 2.5vh;
+  font-weight: bold;
+}
+
+.vacation-chart-container {
+  width: 100%;
+  max-width: 25vw;
+  height: 25vh;
+  min-height: 180px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.vacation-chart-wrapper {
+  margin-top: -4vh; 
+  margin-left: 2.5vh;
+}
+
+.recharts-legend-item-text {
+  font-size: 0.75rem !important;
+}
+
+.recharts-pie-label-text {
+  font-size: 0.7rem !important;
+}

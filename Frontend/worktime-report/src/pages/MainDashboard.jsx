@@ -17,6 +17,11 @@ const MainDashboard = () => {
   const navigate = useNavigate();
   const [currentPage, setCurrentPage] = useState("Dashboard");
   const [selectedPage, setSelectedPage] = useState("Dashboard");
+  const [notifications, setNotifications] = useState([]);
+
+  const addNotification = (msg) => {
+    setNotifications(prev => [...prev, msg]);
+  };
 
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem("user"));
@@ -58,7 +63,7 @@ const MainDashboard = () => {
     <>
       <BannerAndFooter />
       <div className="app_content">
-        <Header currentPage={currentPage} onNavigate={handlePageClick}/>
+        <Header currentPage={currentPage} onNavigate={handlePageClick} notifications={notifications}/>
         <div className="dashboard_container"> 
           <div className="main_layout">
             {/* Open/Close Button*/}
@@ -97,7 +102,7 @@ const MainDashboard = () => {
 
             {/* Main content */}
             <div className={`content ${sidebarOpen ? 'content_default' : 'content_expanded'}`}>
-              <Outlet />  
+              <Outlet context={{ handlePageClick, addNotification  }}/>  
             </div>
           </div>
           </div>

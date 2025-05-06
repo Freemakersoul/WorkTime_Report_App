@@ -6,7 +6,7 @@ import {handleLogout} from '../services/Logout';
 import axios from 'axios';
 
 // FUNCTION THET CONTAINS ALL HEADER INFO AND FEATURES 
-function Header({ currentPage,  onNavigate  }) {
+function Header({ currentPage,  onNavigate, notifications = [] }) {
   const [userName, setUserName] = useState('');
   const [userType, setUserType] = useState('');
   const [profilePhotoUrl, setProfilePhotoUrl] = useState('');
@@ -83,10 +83,21 @@ function Header({ currentPage,  onNavigate  }) {
       </div>
       <h2 className="current_page">{currentPage}</h2>
       <div className="header_icons">
-        <span className="icon" title="Notifications" onClick={() => setShowNotifications(prev => !prev)}>🔔</span>
+      <div className="notification_icon_wrapper" onClick={() =>     setShowNotifications(prev => !prev)}>
+        <span className="icon" title="Notifications">🔔</span>
+        {notifications.length > 0 && (
+          <span className="notification_badge">{notifications.length}</span>
+        )}
+      </div>
         {showNotifications && (
           <div ref={notificationRef} className="notification_dropdown">
-            <p className="notification_text">No notifications</p>
+            {notifications.length === 0 ? (
+              <p className="notification_text">No notifications</p>
+            ) : (
+              notifications.map((note, index) => (
+                <p key={index} className="notification_text">{note}</p>
+              ))
+            )}
           </div>
         )}
         {userType === 313330001 && (

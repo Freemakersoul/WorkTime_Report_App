@@ -7,7 +7,7 @@
   box-sizing: border-box;
 }
 
-.left_section {
+.invoice_left_section {
   flex:1;
   display: flex;
   flex-direction: column;
@@ -26,11 +26,11 @@
   font-size: 2.5vh;
 }
 
-.left_section label {
+.invoice_left_section label {
   font-weight: bold;
 }
 
-.left_section select {
+.invoice_left_section select {
   margin: 2vh 0;
   margin-right: 14vh;
   padding: 0.5vh;
@@ -50,20 +50,20 @@
   border-radius: 20%;
 }
 
-.right_section {
+.invoice_right_section {
   flex:1;
   display: flex;
   flex-direction: column;
   align-items: center;
 }
 
-.right_section p {
+.invoice_right_section p {
   margin-top: 2vh;
   margin-bottom: 4vh;
   width: 45vh;
 }
 
-.right_section img {
+.invoice_right_section img {
   margin-top: 1vh;
   height: 16vh;
   border-radius: 20%;

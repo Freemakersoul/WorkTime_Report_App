@@ -11,6 +11,7 @@ import './styles/management.css';
 import './styles/vacations.css';
 import './styles/reports.css';
 import './styles/invoice.css';
+import './styles/dashboard.css';
 import App from './App.jsx';
 import MainDashboard from './pages/MainDashboard';
 import Dashboard from './pages/Dashboard';

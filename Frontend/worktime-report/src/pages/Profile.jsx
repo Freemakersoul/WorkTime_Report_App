@@ -1,4 +1,5 @@
 import React, {useEffect, useState} from 'react';
+import { useNavigate, useOutletContext  } from 'react-router-dom';
 import defaultProfilePhoto from '../assets/imgs/default_profile_photo.png';
 import clock from '../assets/imgs/clock.png';
 import vacations from '../assets/imgs/vacations.png';
@@ -15,6 +16,8 @@ const Profile = () => {
   const [profilePhotoUrl, setProfilePhotoUrl] = useState(defaultProfilePhoto);
   const [isEditing, setIsEditing] = useState(false);
   const [vacationData, setVacationData] = useState(null);
+  const navigate = useNavigate();
+  const { handlePageClick, addNotification } = useOutletContext();
 
   // LOADING USER DATA AND ROLE TO SHOW ON PERSONAL INFO
   useEffect(() => {
@@ -115,6 +118,7 @@ const Profile = () => {
 
       console.log('Updated user data:', response.data);
       alert('Profile sucessfully updated!');
+      addNotification?.("✅ Profile updated successfully!");
       setIsEditing(false); // TO BE ON INFO MODE
 
       // UDATE USER PHOTO
@@ -302,7 +306,7 @@ const Profile = () => {
               <h2 className="vacations_title">Carried over days:</h2>
               <p className="vacations_info">{vacationData ? vacationData.carried_over_days : 'Loading...'} Days</p>
             </div>
-            <button className="schedule_vacations_button">🗓️ Schedule annual leave</button>
+            <button className="schedule_vacations_button" onClick={() => { handlePageClick("Vacations"); navigate("/dashboard/vacations");}}>🗓️ Schedule annual leave</button>
           </div>
         </div>
       </div>
