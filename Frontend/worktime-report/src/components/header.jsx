@@ -13,6 +13,8 @@ function Header({ currentPage,  onNavigate, notifications = [] }) {
   const [showNotifications, setShowNotifications] = useState(false);
   const navigate = useNavigate();
   const notificationRef = useRef(null);
+  const [lastSeenCount, setLastSeenCount] = useState(notifications.length);
+  const unreadNotifications = notifications.length - lastSeenCount;
   
   // NAVIGATE TO PROFILE PAGE
   const goToProfile = () => {
@@ -83,12 +85,25 @@ function Header({ currentPage,  onNavigate, notifications = [] }) {
       </div>
       <h2 className="current_page">{currentPage}</h2>
       <div className="header_icons">
-      <div className="notification_icon_wrapper" onClick={() =>     setShowNotifications(prev => !prev)}>
-        <span className="icon" title="Notifications">🔔</span>
-        {notifications.length > 0 && (
-          <span className="notification_badge">{notifications.length}</span>
-        )}
-      </div>
+
+        <div
+          className="notification_icon_wrapper"
+          onClick={() => {
+            setShowNotifications(prev => {
+              const newState = !prev;
+              if (newState) {
+                setLastSeenCount(notifications.length); 
+              }
+              return newState;
+            });
+          }}
+        >
+          <span className="icon" title="Notifications">🔔</span>
+          {unreadNotifications > 0 && (
+            <span className="notification_badge">{unreadNotifications}</span>
+          )}
+        </div>
+
         {showNotifications && (
           <div ref={notificationRef} className="notification_dropdown">
             {notifications.length === 0 ? (
@@ -100,17 +115,20 @@ function Header({ currentPage,  onNavigate, notifications = [] }) {
             )}
           </div>
         )}
+
         {userType === 313330001 && (
           <span onClick={goToManagement} className="icon" title="Management">⚙️</span>
         )}
       </div>
+
       <img 
         onClick={goToProfile} 
         title={userName} 
         className="user_photo" 
         src={profilePhotoUrl || defaultProfilePhoto}
-          alt="User Profile"
+        alt="User Profile"
       />
+
       <button onClick={() => handleLogout(navigate)} className="logout_button">Logout</button>
     </div>
   );

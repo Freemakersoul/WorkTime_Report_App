@@ -13,7 +13,7 @@
   height: 7.5vh;
   padding: 0.5vh 2vw;
   gap: clamp(1vh, 3vh, 4vh);
-  z-index: 1;
+  z-index: 1000;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
@@ -84,7 +84,7 @@
   width: 250px;
   max-height: 300px;
   overflow-y: auto;
-  z-index: 100;
+  z-index: 1100;
   padding: 10px;
   animation: fadeIn 0.2s ease-in-out;
 }

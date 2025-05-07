@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useOutletContext } from 'react-router-dom';
 import axios from 'axios';
 import { FaCalendarAlt } from 'react-icons/fa';
 import vacations from '../assets/imgs/vacations.png';
@@ -17,6 +18,8 @@ const Vacations = () => {
   const [holidays, setHolidays] = useState([]);
   const [isHolidayModalOpen, setIsHolidayModalOpen] = useState(false);
   const user = JSON.parse(localStorage.getItem('user'));
+
+  const { addNotification } = useOutletContext();
 
   // UEEFECCTS TO FETCH VACATION DATA, VACATION STATUS AND FECTCH HOLIDAYS
   useEffect(() => {
@@ -140,8 +143,13 @@ const Vacations = () => {
         setIsRejected(true);
         setReasonIfRejected(response.data.reason_if_rejected || ''); 
       }
+      
+      alert('Annual leave request submitted!');
+      addNotification('✅ Annual leave request submitted!');
 
     } catch (error) {
+      alert('Error while submmiting request!');
+      addNotification('❌ Error while submmiting request!');
       console.error('Erro ao criar solicitação de férias:', error);
       setVacationRequestStatus({ message: 'Erro ao criar solicitação de férias' });
     }

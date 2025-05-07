@@ -1,5 +1,6 @@
 // IMPORTS NEEDED
 import React, { useEffect, useState } from "react";
+import { useOutletContext } from 'react-router-dom';
 import axios from 'axios';
 
 const Reports = () => {
@@ -41,6 +42,8 @@ const Reports = () => {
   // CONSTS TO GET USER INFO
   const user = JSON.parse(localStorage.getItem('user'));
   const userId = user?.id;
+
+  const { addNotification } = useOutletContext();
 
   // REPORTS MANAGEMENT
   // FUNCTION O HANDLE TIME REPORT EDITION
@@ -118,10 +121,9 @@ const Reports = () => {
         );
         
         setViewMode('list');
-        alert("Report successfully updated!");
-      } catch (error) {
-        console.error("Error updating report:", error.response ? error.response.data : error.message);
-        alert("Failed to update the report.");
+        addNotification('✅ Report updated sucessfully!');
+      } catch {
+        addNotification('❌ Error while updating report');
       }
     };
 
@@ -226,7 +228,7 @@ const Reports = () => {
     };
   
     try {
-      const response = await axios.post(
+      await axios.post(
         "http://localhost:8000/create-timereport", 
         data, 
         {
@@ -235,9 +237,10 @@ const Reports = () => {
           }
         }
       );
-      console.log('Sucesso:', response.data);
-    } catch (error) {
-      console.error('Erro ao criar relatório:', error.response ? error.response.data : error.message);
+      alert('Report sucessfully created!');
+      addNotification('✅ Report created sucessfully!');
+    } catch  {
+      addNotification('❌ Error while creating report!');
     }
   };
 

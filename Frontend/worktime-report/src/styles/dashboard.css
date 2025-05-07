@@ -62,7 +62,7 @@
 }
 
 .top_left_section p {
-  margin-bottom: 0.8vh;
+  margin-bottom: 1.5vh;
   margin-left : 0.5vw;
   display: -webkit-box;
   -webkit-line-clamp: 2; 
@@ -106,7 +106,7 @@
 
 .top_right_section p {
   margin-left : 1vw;
-  margin-bottom: 0vh;
+  margin-bottom: 1vh;
 }
 
 .reports_icon {

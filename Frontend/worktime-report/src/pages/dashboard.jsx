@@ -210,7 +210,7 @@ const Dashboard = () => {
               </div>
             </>
           ) : (
-            <p>Carregando informações do último relatório...</p>
+            <p>Loading data...</p>
           )}
         </div>
       </div>
