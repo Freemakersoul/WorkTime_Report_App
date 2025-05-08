@@ -50,7 +50,7 @@ const Dashboard = () => {
   useEffect(() => {
     const fetchReports = async () => {
       try {
-        const res = await axios.get(`http://localhost:8000/get-user-timereports?cr6ca_employeeid=${userId}`);
+        const res = await axios.get(`http://localhost:8000/get-user-timereports?employee_id=${userId}`);
         const reports = res.data.value || [];
 
         let total = 0;
@@ -62,7 +62,7 @@ const Dashboard = () => {
         let pending = 0;
 
         reports.forEach(report => {
-          total += report.cr6ca_hoursworked || 0;
+          total += Number(report.cr6ca_hoursworked) || 0;
 
           if (report.cr6ca_ProjectID?.cr6ca_name) {
             projectSet.add(report.cr6ca_ProjectID.cr6ca_name);

@@ -18,6 +18,13 @@ const Profile = () => {
   const [vacationData, setVacationData] = useState(null);
   const navigate = useNavigate();
   const { handlePageClick, addNotification } = useOutletContext();
+  
+  const [hoursWorked, setHoursWorked] = useState({
+    today: 0,
+    week: 0,
+    month: 0,
+    year: 0,
+  });
 
   // LOADING USER DATA AND ROLE TO SHOW ON PERSONAL INFO
   useEffect(() => {
@@ -84,6 +91,8 @@ const Profile = () => {
 
     fetchRoles();
   }, []);
+
+
 
   // UPDATE USER DATA
   const handleSubmit = async (e) => {
@@ -188,6 +197,48 @@ const Profile = () => {
     };
   }, []);
 
+  useEffect(() => {
+    const fetchTimeReports = async () => {
+      const user = JSON.parse(localStorage.getItem("user"));
+      if (!user) return;
+  
+      try {
+        const response = await axios.get(`http://localhost:8000/get-user-timereports?employee_id=${user.id}`);
+        const reports = response.data.value || [];
+  
+        const now = new Date();
+        const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        const startOfWeek = new Date(now);
+        startOfWeek.setDate(now.getDate() - now.getDay());
+        const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+        const startOfYear = new Date(now.getFullYear(), 0, 1);
+  
+        let totalToday = 0, totalWeek = 0, totalMonth = 0, totalYear = 0;
+  
+        reports.forEach((report) => {
+          const created = new Date(report.createdon);
+          const hours = parseFloat(report.cr6ca_hoursworked) || 0;
+  
+          if (created >= startOfYear) totalYear += hours;
+          if (created >= startOfMonth) totalMonth += hours;
+          if (created >= startOfWeek) totalWeek += hours;
+          if (created >= startOfToday) totalToday += hours;
+        });
+  
+        setHoursWorked({
+          today: totalToday,
+          week: totalWeek,
+          month: totalMonth,
+          year: totalYear,
+        });
+      } catch (error) {
+        console.error("Error fetching time reports:", error);
+      }
+    };
+  
+    fetchTimeReports();
+  }, []);
+
   return (
     <div className="scale_wrapper_content">
       <div id="scale_wrapper">
@@ -282,15 +333,14 @@ const Profile = () => {
             <img src={clock} alt="clock photo" className="clock_photo"/>
             <div className="hours_worked_main_info">
               <h2 className="hours_worked_main_title">Hours Worked This Year:</h2>
-              <p className="hours_worked_info"><strong>200 Hours</strong></p>
+              <p className="hours_worked_info"><strong>{hoursWorked.year} Hours</strong></p>
             </div>
             <h3 className="hours_worked_title">Hours Worked Today:</h3>
-            <p className="hours_worked_info" style={{ color: 'lightgreen' }}>8 Hours</p>
+            <p className="hours_worked_info" style={{ color: 'lightgreen' }}>{hoursWorked.today} Hours</p>
             <h3 className="hours_worked_title">Hours Worked This Week:</h3>
-            <p className="hours_worked_info">40 Hours</p>
+            <p className="hours_worked_info">{hoursWorked.week} Hours</p>
             <h3 className="hours_worked_title">Hours Worked This Month:</h3>
-            <p className="hours_worked_info">176 Hours</p>
-            
+            <p className="hours_worked_info">{hoursWorked.month} Hours</p>
           </div>
 
           <div className="divider_right"></div>
