@@ -43,6 +43,7 @@ const Reports = () => {
   const user = JSON.parse(localStorage.getItem('user'));
   const userId = user?.id;
 
+  // CONST TO ADD NOTIFICATION TO HEADER
   const { addNotification } = useOutletContext();
 
   // REPORTS MANAGEMENT
@@ -84,7 +85,7 @@ const Reports = () => {
   
       // VERIFIES IF A VALUE IS UNDEFINED OR NULL
       if (!editedAccount || !editedActivityType || !editedProject || !editedProjectType || !editedTask || !editedTimeType) {
-        alert('Todos os campos obrigatórios devem ser preenchidos!');
+        alert('All required fields must be filled!');
         return;
       }
       
@@ -158,8 +159,8 @@ const Reports = () => {
         setTasks(tasksRes.data);
         setTimeTypes(timeTypesRes.data);
       } catch (error) {
-        setErrorMessage("Erro ao buscar dados. Tente novamente.");
-        console.error("Erro ao buscar dados:", error);
+        setErrorMessage("Error fetching data. Try again.");
+        console.error("Error fetching data:", error);
       } finally {
         setLoading(false);
       }
@@ -178,7 +179,7 @@ const Reports = () => {
     
         setReports(userReports);
       } catch (error) {
-        console.error("Erro ao buscar relatórios:", error);
+        console.error("Error while fetching reports:", error);
       }
     };
       
@@ -204,8 +205,8 @@ const Reports = () => {
     e.preventDefault();
     
     if (!selectedAccount || !selectedActivityType || !selectedProject || !selectedTimeType || !hoursWorked) {
-      alert('Por favor, preencha todos os campos.');
-      console.log('Campos não preenchidos:', {
+      alert('Please, complete all fields.');
+      console.log('Fields to complete:', {
         selectedAccount,
         selectedActivityType,
         selectedProject,
@@ -265,7 +266,7 @@ const Reports = () => {
   
   // FUNCTION TO ANALYZE REPORTS INFO
   const handleAnalyzeReport = (report) => {
-    console.log("Analisando relatório:", report);
+    console.log("Analyzing report:", report);
     handleViewChange('analyze');
     setAnalyzedReport(report);
   };
@@ -563,7 +564,7 @@ const Reports = () => {
                       value={editedAccount}
                       onChange={(e) => setEditedAccount(e.target.value)}
                     >
-                      <option value="">Selecione</option>
+                      <option value="">Select</option>
                       {accounts.map((acc) => (
                         <option key={acc.id} value={acc.id}>
                           {acc.name}
@@ -581,7 +582,7 @@ const Reports = () => {
                       value={editedActivityType}
                       onChange={(e) => setEditedActivityType(e.target.value)}
                     >
-                      <option value="">Selecione</option>
+                      <option value="">Select</option>
                       {activityTypes.map((a) => (
                         <option key={a.id} value={a.id}>
                           {a.name}
@@ -599,7 +600,7 @@ const Reports = () => {
                       value={editedProject}
                       onChange={(e) => setEditedProject(e.target.value)}
                     >
-                      <option value="">Selecione</option>
+                      <option value="">Select</option>
                       {projects.map((p) => (
                         <option key={p.id} value={p.id}>
                           {p.name}
@@ -617,7 +618,7 @@ const Reports = () => {
                       value={editedProjectType}
                       onChange={(e) => setEditedProjectType(e.target.value)}
                     >
-                      <option value="">Selecione</option>
+                      <option value="">Select</option>
                       {projectTypes.map((pt) => (
                         <option key={pt.id} value={pt.id}>
                           {pt.name}
@@ -635,7 +636,7 @@ const Reports = () => {
                       value={editedTask}
                       onChange={(e) => setEditedTask(e.target.value)}
                     >
-                      <option value="">Selecione</option>
+                      <option value="">Select</option>
                       {tasks.map((t) => (
                         <option key={t.id} value={t.id}>
                           {t.name}
@@ -653,7 +654,7 @@ const Reports = () => {
                       value={editedTimeType}
                       onChange={(e) => setEditedTimeType(e.target.value)}
                     >
-                      <option value="">Selecione</option>
+                      <option value="">Select</option>
                       {timeTypes.map((tt) => (
                         <option key={tt.id} value={tt.id}>
                           {tt.name}

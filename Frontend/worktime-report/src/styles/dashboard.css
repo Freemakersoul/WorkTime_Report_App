@@ -1,3 +1,6 @@
+/***************************/
+/*DASHBOARD CONTENT STYLES*/
+/*************************/
 .dashboard_content {
   width: 100%;
   height: 100%;
@@ -8,6 +11,19 @@
   overflow: hidden;
 }
 
+/**************************************/
+/*DASHBOARD HORIZONTAL DIVIDER STYLES*/
+/************************************/
+.horizontal-divider {
+  width: 80%; 
+  height: 0.7vh; 
+  background-color: rgba(255, 255, 255, 0.3);
+  margin: 2vh 0; 
+}
+
+/*******************************************/
+/*DASHBOARD LEFT AND RIGHT SECTIONS STYLES*/
+/*****************************************/
 .dashboard_left_section, .dashboard_right_section {
   flex:1;
   display: flex;
@@ -18,6 +34,10 @@
   overflow: hidden;
 }
 
+/********************************/
+/*DASHBOARD TOP LEFT SECTION****/
+/*AND TOP RIGHT SECTION STYLES*/
+/*****************************/
 .top_left_section,
 .top_right_section {
   flex: 1;
@@ -30,6 +50,9 @@
   width: 80%;
 }
 
+/**************************************/
+/*DASHBOARD DOWN RIGHT SECTION STYLES*/
+/************************************/
 .down_right_section {
   flex: 1;
   display: flex;
@@ -42,18 +65,9 @@
   width: 80%;
 }
 
-.down_left_section{
-  flex: 1;
-  display: flex;
-  flex-direction: row;
-  align-items: flex-start; 
-  justify-content: flex-start;
-  margin-top: 7vh; 
-  margin-left : 2.5vh;
-  width: 80%;
-}
-
-/**/
+/************************************/
+/*DASHBOARD TOP LEFT SECTION STYLES*/
+/**********************************/
 .clock {
   margin-right: 2vh;
   height: 18vh;
@@ -71,7 +85,32 @@
   text-overflow: ellipsis;
 }
 
-/**/
+/*************************************/
+/*DASHBOARD TOP RIGHT SECTION STYLES*/
+/***********************************/
+.top_right_section p {
+  margin-left : 1vw;
+  margin-bottom: 1vh;
+}
+
+.reports_icon {
+  height: 20vh;
+}
+
+/*************************************/
+/*DASHBOARD DOWN LEFT SECTION STYLES*/
+/***********************************/
+.down_left_section{
+  flex: 1;
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start; 
+  justify-content: flex-start;
+  margin-top: 7vh; 
+  margin-left : 2.5vh;
+  width: 80%;
+}
+
 .down_left_section p {
   margin-bottom: 0vh;
   margin-top: 2vh;
@@ -95,26 +134,9 @@
   border-radius: 20%;
 }
 
-.horizontal-divider {
-  width: 80%; 
-  height: 0.7vh; 
-  background-color: rgba(255, 255, 255, 0.3);
-  margin: 2vh 0; 
-}
-
-/**/
-
-.top_right_section p {
-  margin-left : 1vw;
-  margin-bottom: 1vh;
-}
-
-.reports_icon {
-  height: 20vh;
-}
-
-/**/
-
+/**************************************/
+/*DASHBOARD DOWN RIGHT SECTION STYLES*/
+/************************************/
 .down_right_section label {
   margin-bottom: 2vh;
   margin-left : 2.5vh;

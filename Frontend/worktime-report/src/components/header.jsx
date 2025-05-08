@@ -79,11 +79,16 @@ function Header({ currentPage,  onNavigate, notifications = [] }) {
 
   return (
     <div className="header">
+      {/* LOGO AND GREETINGS TO USER */}
       <img src={logo} alt="WorkTime Report Icon" className="app_icon_header" />
       <div className="greetings">
         Welcome to WorkTime Report,<span style={{color:'aqua'}}> {userName}</span>!
       </div>
+
+      {/* CURRENT PAGE NAME */}
       <h2 className="current_page">{currentPage}</h2>
+
+      {/* HEADER ICONS AND ACTIONS ASSOCIATED */}
       <div className="header_icons">
 
         <div
@@ -120,7 +125,8 @@ function Header({ currentPage,  onNavigate, notifications = [] }) {
           <span onClick={goToManagement} className="icon" title="Management">⚙️</span>
         )}
       </div>
-
+      
+      {/* LOGGED USER PHOTO */}
       <img 
         onClick={goToProfile} 
         title={userName} 
@@ -129,6 +135,7 @@ function Header({ currentPage,  onNavigate, notifications = [] }) {
         alt="User Profile"
       />
 
+      {/* LOGOUT BUTTON */}
       <button onClick={() => handleLogout(navigate)} className="logout_button">Logout</button>
     </div>
   );

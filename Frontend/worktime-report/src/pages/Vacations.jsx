@@ -36,12 +36,12 @@ const Vacations = () => {
         
 
         if (response.data.vacation_balances && response.data.vacation_balances.length > 0) {
-          // Ordena os dados por ano (do mais recente para o mais antigo)
+          // Sort data by year (from the last to the oldest)
           const sorted = response.data.vacation_balances.sort((a, b) => b.year - a.year);
-          setVacationData(sorted[0]); // Pega o saldo de férias mais recente
+          setVacationData(sorted[0]); 
         }
       } catch (error) {
-        console.error('Erro ao buscar saldo de férias:', error);
+        console.error('Error while fetching vacation balance:', error);
       }
     };
 
@@ -49,7 +49,7 @@ const Vacations = () => {
     const fetchVacationStatusByUser = async () => {
       try {
         const response = await axios.get(`http://localhost:8000/get-vacation-status-by-user-id/${user.id}`);
-        console.log('Status mais recente:', response.data);
+        console.log('Most recent status:', response.data);
     
         const { vacation_status, reason_if_rejected } = response.data;
     
@@ -58,7 +58,7 @@ const Vacations = () => {
     
         setIsRejected(vacation_status === 313330002); 
       } catch (error) {
-        console.error('Erro ao buscar status mais recente de férias:', error);
+        console.error('Error while fetching most recent status:', error);
       }
     };
 
@@ -75,7 +75,7 @@ const Vacations = () => {
 
             setHolidays(formatted);
           } catch (error) {
-            console.error("Erro ao buscar feriados:", error);
+            console.error("Error fetching public holidays:", error);
           }
         };
 
@@ -90,7 +90,7 @@ const Vacations = () => {
     e.preventDefault();
 
     if (!startDate || !endDate) {
-      alert('Preencha todos os campos');
+      alert('Complete all fields');
       return;
     }
 
@@ -98,7 +98,7 @@ const Vacations = () => {
     const end = new Date(endDate);
 
     if (start > end) {
-      alert('A data de início não pode ser posterior à data de fim.');
+      alert('The start date must be earlier or equal to the end date.');
       return;
     }
 
@@ -124,7 +124,7 @@ const Vacations = () => {
     const availableDays = vacationData?.available_days ?? 0;
 
     if (requestedDays > availableDays) {
-      alert('Você não tem dias de férias suficientes para esta solicitação.');
+      alert('You have not enough available days to make the request.');
       return;
     }
 
@@ -150,8 +150,8 @@ const Vacations = () => {
     } catch (error) {
       alert('Error while submmiting request!');
       addNotification('❌ Error while submmiting request!');
-      console.error('Erro ao criar solicitação de férias:', error);
-      setVacationRequestStatus({ message: 'Erro ao criar solicitação de férias' });
+      console.error('Error while making request:', error);
+      setVacationRequestStatus({ message: 'Error while making request:' });
     }
   };
 

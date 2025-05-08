@@ -4,24 +4,26 @@ import logo from '../assets/imgs/logotype.png'
 import { useNavigate } from 'react-router-dom';
 
 function Register() {
+
+  // CONSTS TO USER REGISTERING
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-
+  
   const navigate = useNavigate();
 
+  // FUNCTION TO USER REGISTERING 
   const handleSubmit = (e) => {
     e.preventDefault();
     if (password !== confirmPassword) {
-      alert("As senhas não coincidem!");
+      alert("Passwords do not match!");
       return;
     }
-    // Lógica para registrar o usuário
-    alert("Usuário registrado com sucesso!");
+    alert("User registered sucessfully!");
   };
 
   const handleBack = () => {
-    navigate('/');  // Navega para a página inicial
+    navigate('/');  // Navigates to index page
   };
 
   return (

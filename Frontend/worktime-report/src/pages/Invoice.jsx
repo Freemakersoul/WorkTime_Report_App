@@ -11,10 +11,13 @@ import microsoftImg from '../assets/imgs/microsoft.png';
 import defaultProfilePhoto from '../assets/imgs/default_profile_photo.png';
 
 const Invoice = () => {
+
+  // CONSTS TO FETCH SELECTED CLIENT INFO
   const [invoices, setInvoices] = useState([]);
   const [selectedClient, setSelectedClient] = useState('');
   const [selectedInvoice, setSelectedInvoice] = useState(null);
 
+  // USEEFFECT TO FETCH INVOICE DATA
   useEffect(() => {
     const fetchInvoices = async () => {
       try {
@@ -26,13 +29,14 @@ const Invoice = () => {
           setSelectedClient(firstClient);
         }
       } catch (error) {
-        console.error('Erro ao buscar invoices:', error);
+        console.error('Error while fetching invoices:', error);
       }
     };
 
     fetchInvoices();
   }, []);
 
+  // USE EFFECT TO FETCH INVOICE DATA FROM SELECTED CLIENT
   useEffect(() => {
     if (selectedClient) {
       const invoice = invoices.find(inv => inv.cr6ca_AccountID?.name === selectedClient);
@@ -40,6 +44,7 @@ const Invoice = () => {
     }
   }, [selectedClient, invoices]);
 
+  // FUNCTION TO GET CLIENT PHOTO BASED ON CLIENT NAME
   const getClientImagePath = (clientName) => {
     if (!clientName) return defaultProfilePhoto;  
   
@@ -59,6 +64,7 @@ const Invoice = () => {
 
   return (
     <div className="invoice_content">
+      {/* LEFT SECTION - SELECT CLIENT */}
       <div className="invoice_left_section">
         <h1 className="main_title">Client Projects</h1>
         <label className="client_select" htmlFor="client-select">Select a Client:</label>
@@ -89,7 +95,8 @@ const Invoice = () => {
       </div>
 
       <div className="divider"></div>
-
+      
+      {/* RIGHT SECTION - CLIENT INVOICE INFO */}
       <div className="invoice_right_section">
         <h1 className="main_title">Client Invoice Details</h1>
         {selectedInvoice ? (
@@ -114,7 +121,7 @@ const Invoice = () => {
             <p><strong>Due date:</strong> <span style={{ color: 'aqua' }}>{selectedInvoice.cr6ca_duedate?.split('T')[0] || '—'}</span></p>
           </div>
         ) : (
-          <p>Selecione um cliente para ver os detalhes.</p>
+          <p>Select a client to see more details.</p>
         )}
       </div>
     </div>

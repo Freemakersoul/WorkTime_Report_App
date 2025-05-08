@@ -14,13 +14,15 @@ import defaultProfilePhoto from '../assets/imgs/default_profile_photo.png';
 import reportIcon from '../assets/imgs/report.png';
 
 const Dashboard = () => {
-
+  
+  // CONST TO SUMMARYZE CLIENT INFO
   const [summary, setSummary] = useState({
     totalHours: 0,
     projects: [],
     clients: [],
   });
 
+  // CONST TO SUMMARYZE REPORT STATUS
   const [reportStatusSummary, setReportStatusSummary] = useState({
     total: 0,
     approved: 0,
@@ -28,6 +30,7 @@ const Dashboard = () => {
     pending: 0
   });
 
+  // CONST TO SUMMARYZE VACATION STATUS AND DAYS INFO
   const [vacationStats, setVacationStats] = useState({
     approved: 0,
     rejected: 0,
@@ -36,12 +39,14 @@ const Dashboard = () => {
     availableDays: 0,
     carriedOverDays: 0,
   });
-
   const COLORS = ['lightgreen', 'orange']; 
+
+  // CONSTS TO FETCH INFO BASED ON IT
   const [latestReportData, setLatestReportData] = useState(null);
   const user = JSON.parse(localStorage.getItem('user'));
   const userId = user?.id;
 
+  // USEEFFECTS TO FETCH REPORTS AND VACATIONS STATS 
   useEffect(() => {
     const fetchReports = async () => {
       try {
@@ -113,7 +118,7 @@ const Dashboard = () => {
         }
 
       } catch (err) {
-        console.error('Erro ao buscar relatórios:', err);
+        console.error('Error while fetching reports data:', err);
       }
     };
 
@@ -155,7 +160,7 @@ const Dashboard = () => {
         });
     
       } catch (err) {
-        console.error("Erro ao buscar dados de férias:", err);
+        console.error("Error while fetching vacation data:", err);
       }
     };
     
@@ -163,7 +168,7 @@ const Dashboard = () => {
     fetchReports();
   }, []);
 
-  
+  // FUNCTION TO GET CLIENT PHOTO BASED ON CLIENT NAME 
   const getClientImagePath = (clientName) => {
     if (!clientName) return defaultProfilePhoto;  
 
@@ -183,6 +188,7 @@ const Dashboard = () => {
 
   return (
     <div className="dashboard_content">
+      {/* LEFT TOP SECTION - HOURS WORKED */}
       <div className="dashboard_left_section">
         <div className="top_left_section">
           <img src={clock} alt="clock photo" className="clock"/>
@@ -192,7 +198,9 @@ const Dashboard = () => {
             <p><strong>Clients:</strong> <span style={{ color: 'aqua' }}>{summary.clients.join(', ') || 'Nenhum'}</span></p>
           </div>
         </div>
+
         <div className="horizontal-divider" />
+        {/* DOWN LEFT SECTION - CLIENT SUMMARY */}
         <div className="down_left_section">
           {latestReportData ? (
             <>
@@ -218,6 +226,7 @@ const Dashboard = () => {
       <div className="divider"></div>
 
       <div className="dashboard_right_section">
+        {/* TOP RIGHT SECTION - REPORTS SUMMARY */}
         <div className="top_right_section">
           <img  className="reports_icon" src={reportIcon} alt="Report Icon"/>
             <div>
@@ -229,7 +238,8 @@ const Dashboard = () => {
         </div>
 
         <div className="horizontal-divider" />
-
+        
+        {/* DOWN RIGHT SECTION - VACATIONS STATS AND DAYS INFO */}
         <div className="down_right_section">
         <div>
             <p><strong>Vacation Requests:</strong></p>

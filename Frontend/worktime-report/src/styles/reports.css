@@ -125,8 +125,8 @@
   margin-top: 2vh;
   border:none;
   border-radius: 2vh;
-  display: block;  /* Permite o scroll apenas na altura */
-  margin-bottom: 2vh; /* Espaço abaixo da tabela */
+  display: block;  
+  margin-bottom: 2vh; 
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 

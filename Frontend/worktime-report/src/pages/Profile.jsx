@@ -57,7 +57,7 @@ const Profile = () => {
             setVacationData(sorted[0]); // get the most recent vacation balance
           }
         } catch (error) {
-          console.error('Erro ao buscar saldo de férias:', error);
+          console.error('Error while fetching vacation balance:', error);
         }
       };
 

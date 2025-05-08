@@ -112,7 +112,7 @@ const Management = () => {
     switch (type) {
       case 313330000: return "User";
       case 313330001: return "Admin";
-      default: return "Desconhecido";
+      default: return "Unknown";
     }
   };
 
@@ -146,7 +146,7 @@ const Management = () => {
   const handleApprove = async (leaveId) => {
     try {
       await axios.patch(`http://localhost:8000/update-vacation-status/${leaveId}`, {
-        vacation_status: 313330001  // Aprovado
+        vacation_status: 313330001  // Approved
       });
       setLeaves((prevLeaves) => prevLeaves.filter((leave) => leave.id !== leaveId));
       alert("Leave request approved!");
@@ -193,7 +193,7 @@ const Management = () => {
       const days = [];
   
       for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
-        days.push(new Date(d)); // Cria cópia da data
+        days.push(new Date(d)); // Create a date copy
       }
   
       return days;
@@ -280,10 +280,10 @@ const Management = () => {
         )
       );
   
-      alert("Status atualizado com sucesso!");
+      alert("Status updated successfully!");
     } catch (error) {
-      console.error("Erro ao atualizar status:", error.response?.data || error.message);
-      alert("Falha ao atualizar o status do relatório.");
+      console.error("Error while updating status:", error.response?.data || error.message);
+      alert("Failed to update report status.");
     }
   };
 
@@ -326,7 +326,7 @@ const Management = () => {
 
     // VERIFIES IF A VALUE IS UNDEFINED OR NULL
     if (!editedAccount || !editedActivityType || !editedProject || !editedProjectType || !editedTask || !editedTimeType) {
-      alert('Todos os campos obrigatórios devem ser preenchidos!');
+      alert('All fields must be filled!');
       return;
     }
     
@@ -403,7 +403,7 @@ const Management = () => {
     
         setLeaves(sortedLeaves);  
       } catch (error) {
-        console.error("Erro ao buscar leaves:", error);
+        console.error("Error while fetching leaves:", error);
       }
     };
 
@@ -417,7 +417,7 @@ const Management = () => {
         }));
         setHolidays(formatted);
       } catch (error) {
-        console.error("Erro ao buscar feriados:", error);
+        console.error("Error while fetching public holidays:", error);
       }
     };
 
@@ -428,7 +428,7 @@ const Management = () => {
         console.log(response.data);
         setReports(response.data.value); 
       } catch (error) {
-        console.error("Erro ao buscar relatórios:", error);
+        console.error("Erro while fetching reports:", error);
       }
     };
     
@@ -458,7 +458,7 @@ const Management = () => {
             setTasks(tasksRes.data);
             setTimeTypes(timeTypesRes.data);
           } catch (error) {
-            console.error("Erro ao buscar dados:", error);
+            console.error("Error while fetching data:", error);
           } 
       };
 
@@ -476,7 +476,7 @@ const Management = () => {
 
   // FUNCTION TO ANALYZE REPORTS INFO
   const handleAnalyzeReport = (report) => {
-    console.log("Analisando relatório:", report);
+    console.log("Analyzing report:", report);
     handleViewChange('analyze');
     setAnalyzedReport(report);
   };

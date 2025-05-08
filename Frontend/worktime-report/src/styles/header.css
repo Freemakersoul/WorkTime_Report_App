@@ -17,6 +17,9 @@
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
+/**************************/
+/*HEADER LEFT SIDE STYLES*/
+/************************/
 .app_icon_header {
   height: clamp(3vh, 6vh, 7vh);
   margin-left: 0.8vw;
@@ -33,6 +36,9 @@
   flex-shrink: 1;
 }
 
+/****************************/
+/*HEADER MIDDLE SIDE STYLES*/
+/**************************/
 .current_page {
   position: absolute;
   left: 50%;
@@ -47,6 +53,9 @@
   text-align: center;
 }
 
+/***************************/
+/*HEADER RIGHT SIDE STYLES*/
+/*************************/
 .header_icons {
   display: flex;
   align-items: center;
@@ -67,12 +76,9 @@
   transform: scale(1.2);
 } 
 
-.user_photo {
-  height: 5vh;
-  border-radius: 50%;
-  cursor: pointer;
-}
-
+/******************************/
+/*HEADER NOTIFICATIONS STYLES*/
+/****************************/
 .notification_dropdown {
   position: absolute;
   top: 120%; 
@@ -115,10 +121,22 @@
   transform: translate(50%, 50%);
 }
 
+/***************************/
+/*HEADER USER PHOTO STYLES*/
+/*************************/
+.user_photo {
+  height: 5vh;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
 .user_photo:hover {
   transform: scale(1.2);
 }
 
+/******************************/
+/*HEADER LOGOUT BUTTON STYLES*/
+/****************************/
 .logout_button {
   display: flex;
   align-items: center;
