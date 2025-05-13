@@ -116,8 +116,58 @@ const Management = () => {
     }
   };
 
+  
+  const handleApproveUser = async (userId) => {
+    const newStatus = 313330001; 
+    
+    try {
+      
+      const response = await axios.patch(
+        `http://localhost:8000/update-register-status/${userId}?status=${newStatus}`
+      );
+  
+      if (response.status === 200) {
+        
+        setUsers(prevUsers =>
+          prevUsers.map(user =>
+            user.id === userId ? { ...user, cr6ca_registerstatus: newStatus } : user
+          )
+        );
+        alert("User successfully approved!");
+      } else {
+        console.error("Failed to approve user:", response);
+        alert("Failed to approve user.");
+      }
+    } catch (error) {
+      console.error("Error approving user:", error);
+      alert("Error while approving user.");
+    }
+  };
+
+  const handleRejectUser = async (userId) => {
+    if (window.confirm("Are you sure you want to reject this user? This action cannot be undone.")) {
+      try {
+        
+        const response = await axios.delete(`http://localhost:8000/delete-user/${userId}`);
+        
+        
+        if (response.status === 200 || response.status === 204) {
+          
+          setUsers(prevUsers => prevUsers.filter(user => user.id !== userId));
+          alert("User successfully rejected!");
+        } else {
+          console.error("Failed to reject user:", response);
+          alert("Failed to reject user.");
+        }
+      } catch (error) {
+        console.error("Error rejecting user:", error);
+        alert("Error while rejecting user.");
+      }
+    }
+  };
+
   // FUNCTION TO HANDLE THE USER DATA EDITION
-  const handleEdit = (user) => {
+  const handleEditUser = (user) => {
     setSelectedUser(user);
     setUserName(user.name);
     setUserEmail(user.email);
@@ -128,7 +178,7 @@ const Management = () => {
   };
 
   // FUNCTION TO DELETE USER DATA
-  const handleDelete = async (userId) => {
+  const handleDeleteUser = async (userId) => {
     if (window.confirm("Are you sure you want to delete this user? This action cannot be undone.")) {
       try {
         await axios.delete(`http://localhost:8000/delete-user/${userId}`);
@@ -515,11 +565,42 @@ const Management = () => {
                       <td>{"•".repeat(user.password?.length || 5)}</td>
                       <td>{getUserTypeLabel(user.usertype)}</td>
                       <td>
+                        {user.registerstatus === 313330000 && (  // Pending
+                          <>
+                            <button 
+                              className="approve_button" 
+                              title="Approve"
+                              onClick={() => handleApproveUser(user.id)}>
+                              ✅
+                            </button>
+                            <button 
+                              className="reject_button" 
+                              title="Reject"
+                              onClick={() => handleRejectUser(user.id)}>
+                              ❌ 
+                            </button>
+                          </>
+                        )}
                         <div className="users_list_actions">
-                          <button className="users_edit_action" onClick={() => handleEdit(user)} title="Edit">✏️</button>
-                          <button className="users_delete_actions" onClick={() => handleDelete(user.id)} title="Delete">🗑️</button>
+                          {user.registerstatus === 313330001 && (  // Approved
+                            <>
+                              <button 
+                                className="users_edit_action" 
+                                onClick={() => handleEditUser(user)}>
+                                ✏️ 
+                              </button>
+                              <button 
+                                className="users_delete_action" 
+                                onClick={() => handleDeleteUser(user.id)}>
+                                🗑️ 
+                              </button>
+                            </>
+                          )}
                         </div>
-                      </td>
+                        {user.registerstatus === 313330002 && (  // Rejected
+                          <span className="status_rejected">❌ Rejected</span>
+                        )}
+                    </td>
                     </tr>
                   ))}
                 </tbody>

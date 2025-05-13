@@ -56,19 +56,36 @@ const App = () => {
   // LOGIN
   const handleLogin = async (e) => {
     e.preventDefault();
-    
+
     try {
       const response = await axios.post("http://localhost:8000/login", { email, password });
-  
-      localStorage.setItem("user", JSON.stringify(response.data.user)); // Saves user data
-  
-      alert("Successful login!");
-      window.location.href = "/dashboard"; // Navigates to dashboard
+
+      const user = response.data.user;
+      const employeeId = user.id;
+
+      if (!employeeId) {
+        alert("Login failed. Employee ID not found.");
+        return;
+      }
+
+      // Fetching register status
+      const statusResponse = await axios.get(`http://localhost:8000/get-register-status/${employeeId}`);
+      const registerStatus = statusResponse.data.register_status;
+
+      if (registerStatus !== 313330001) {
+        alert("Your account hasn't been approved yet. Please wait.");
+        return;
+      }
+
+      // If everything it's OK, store user and redirect
+      localStorage.setItem("user", JSON.stringify(user));
+      alert("Successfully logged in!");
+      window.location.href = "/dashboard";
+
     } catch (error) {
-      console.error("Login error:", error.response?.data || error.message);
-      alert("Invalid email or password. Please try again.");
+      console.error("Erro no login:", error.response?.data || error.message);
+      alert("Email ou senha inválidos. Tente novamente.");
     }
-    
   };
 
   useEffect(() => {

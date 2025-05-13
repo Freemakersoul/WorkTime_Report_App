@@ -73,13 +73,15 @@ async def create_user(user: UserCreateRequest):
         "cr6ca_name": user.name, 
         "cr6ca_password": user.password,
         "cr6ca_usertype": user.usertype,
-        "overriddencreatedon": datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%SZ') 
+        "overriddencreatedon": datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%SZ'),
+        "cr6ca_registerstatus": 313330000 
         }
 
         # Send user data to Dynamics 365 API url
         dynamics_url = f"{DYNAMICS_URL}/api/data/v9.2/cr6ca_employees"
         response = requests.post(dynamics_url, json=data, headers=headers)
 
+        # If OK send user data 
         if response.status_code in [200,201,204]:
             # Trying to extract the systemuserid from header "OData-EntityId"
             entity_id = response.headers.get("OData-EntityId")
@@ -131,6 +133,7 @@ async def login_user(login_data: LoginRequest):
 
         response = requests.get(url, headers=headers)
 
+        # If OK, Authenticate
         if response.status_code in [200,201,204]:
             results = response.json().get("value", [])
             
@@ -159,6 +162,77 @@ async def login_user(login_data: LoginRequest):
 
     except Exception as e:
         print("Login error:", str(e))
+        raise HTTPException(status_code=500, detail="Internal server error")
+    
+############################
+# GET USER REGISTER STATUS #
+############################
+@app.get("/get-register-status/{cr6ca_employeeid}")
+async def get_register_status(cr6ca_employeeid: str):
+    try:
+        # Getting Bearer acess token from dynamics
+        token = get_access_token()
+        if not token:
+            raise HTTPException(status_code=400, detail="Invalid access token")
+
+        # Data format to send and receive the data expected (JSON)
+        headers = {
+            "Authorization": f"Bearer {token}",
+            "Accept": "application/json"
+        }
+
+        # Retrieving user register status from Dynamics (URL)
+        url = f"{DYNAMICS_URL}/api/data/v9.2/cr6ca_employees({cr6ca_employeeid})?$select=cr6ca_registerstatus"
+        response = requests.get(url, headers=headers)
+
+        # If OK return user register status data 
+        if response.status_code in [200, 201, 204]:
+            user_data = response.json()
+            return {
+                "register_status": user_data.get("cr6ca_registerstatus")
+            }
+        else:
+            raise HTTPException(status_code=response.status_code, detail="User not found")
+    except Exception as e:
+        print("Error getting register status:", str(e))
+        raise HTTPException(status_code=500, detail="Internal server error")
+    
+###############################
+# UPDATE USER REGISTER STATUS #
+###############################
+@app.patch("/update-register-status/{cr6ca_employeeid}")
+async def update_register_status(cr6ca_employeeid: str, status: int):
+    try:
+        # Getting Bearer acess token from dynamics
+        token = get_access_token()
+        if not token:
+            raise HTTPException(status_code=400, detail="Invalid access token")
+
+        # Data format to send and receive the data expected (JSON)
+        headers = {
+            "Authorization": f"Bearer {token}",
+            "Content-Type": "application/json",
+            "Accept": "application/json"
+        }
+
+        # Update user register status on Dynamics (URL)
+        url = f"{DYNAMICS_URL}/api/data/v9.2/cr6ca_employees({cr6ca_employeeid})"
+
+        # Data sent
+        data = {
+            "cr6ca_registerstatus": status
+        }
+
+        response = requests.patch(url, headers=headers, json=data)
+
+        # If OK update user register status data 
+        if response.status_code in [204]: 
+            return {"message": "Register status updated successfully"}
+        else:
+            print(response.text)
+            raise HTTPException(status_code=response.status_code, detail="Failed to update register status")
+    except Exception as e:
+        print("Error updating register status:", str(e))
         raise HTTPException(status_code=500, detail="Internal server error")
 
 #################
@@ -193,7 +267,8 @@ async def get_user(cr6ca_employeeid: str):
                 "email": user.get("cr6ca_email"),
                 "password":user.get("cr6ca_password"),
                 "usertype": user.get("cr6ca_usertype"),
-                "photo_url": f"data:image/png;base64,{photo_base64}" if photo_base64 else None
+                "photo_url": f"data:image/png;base64,{photo_base64}" if photo_base64 else None,
+                "registerstatus": user.get("cr6ca_registerstatus")
             }
         else:
             raise HTTPException(status_code=response.status_code, detail="User not found")
@@ -235,7 +310,8 @@ async def get_all_users():
                     "email": user.get("cr6ca_email"),
                     "password":user.get("cr6ca_password"),
                     "usertype": user.get("cr6ca_usertype"),
-                    "photo_url": f"data:image/png;base64,{photo_base64}" if photo_base64 else None
+                    "photo_url": f"data:image/png;base64,{photo_base64}" if photo_base64 else None,
+                    "registerstatus": user.get("cr6ca_registerstatus")
                 })
 
             return {"users": users}
